@@ -62,7 +62,7 @@ if portfolio is not None:
     portfolio['Founded'] = portfolio['Founded'].str.replace(r'\(.*?\)', '', regex=True).str.strip()
     portfolio['Dollar_Return'] = portfolio['Return'] * portfolio['Adj Close']
 
-    # Date selection
+    
     yesterday = datetime.now() - timedelta(days=1)  # Changed this line
     selected_date = st.date_input("Select Date:", yesterday)
     filtered_portfolio = portfolio[portfolio['Datetime'].dt.date == selected_date]
