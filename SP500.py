@@ -82,7 +82,17 @@ st.dataframe(portfolio)
 # Rolling Visualization
 st.write("### Rolling Visualization:")
 selected_symbol = st.selectbox("Ticker:", filtered_portfolio['Symbol'].unique())
-symbol_data = filtered_portfolio[filtered_portfolio['Symbol'] == selected_symbol]
+
+# After filtering the portfolio based on the selected date
+filtered_portfolio = portfolio[portfolio['Datetime'].dt.date == selected_date]
+
+# Check if filtered_portfolio is not None, not empty, and contains 'Symbol' column
+if filtered_portfolio is not None and 'Symbol' in filtered_portfolio.columns and not filtered_portfolio.empty:
+    selected_symbol = st.selectbox("Ticker:", filtered_portfolio['Symbol'].unique())
+    # ... Continue with the rest of your code
+else:
+    st.error("No data available for the selected date.")
+    
 symbol_data.set_index('Datetime', inplace=True)
 symbol_data['Close'].plot()
 plt.title(f"Rolling Visualization for {selected_symbol}")
