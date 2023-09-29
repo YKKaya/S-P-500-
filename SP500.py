@@ -39,8 +39,7 @@ def merge_additional_info(portfolio, tickers):
         portfolio = pd.merge(portfolio, company_info, on='Symbol', how='left')
         return portfolio
     except Exception as e:
-        st.error(f"Error merging additional info: {e}")
-        return None
+      return None
 
 # Title and Description
 st.title("S&P 500 Analysis")
@@ -48,7 +47,7 @@ st.write("""
 An interactive analysis of S&P 500 companies, allowing users to view historical stock data, returns, and additional company information.
 """)
 
-# URL for fetching S&P 500 companies data
+
 url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
 
 # Fetching the list of S&P 500 companies from Wikipedia
