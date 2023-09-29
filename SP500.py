@@ -51,66 +51,31 @@ An interactive analysis of S&P 500 companies, allowing users to view historical 
 
 url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
 
-# Fetching the list of S&P 500 companies from Wikipedia
 tickers = fetch_sp500_data(url)
-
-# Selecting the ticker symbols
 Stocks = tickers.Symbol.to_list()
-
-# Downloading historical stock data
 Portfolio = download_stock_data(Stocks)
-
-# Processing the stock data
 portfolio = process_data(Portfolio)
-
-# Merging additional company information
 portfolio = merge_additional_info(portfolio, tickers)
 
-# Cleaning the 'Founded' column by removing year values wrapped in parentheses
 if portfolio is not None:
     portfolio['Founded'] = portfolio['Founded'].str.replace(r'\(.*?\)', '', regex=True).str.strip()
+    portfolio['Dollar_Return'] = portfolio['Return'] * portfolio['Adj Close']
 
-# Calculating the dollar value of the return
-portfolio['Dollar_Return'] = portfolio['Return'] * portfolio['Adj Close']
+    # Date selection
+    yesterday = datetime.today() - timedelta(days=1)
+    selected_date = st.date_input("Select Date:", yesterday)
+    filtered_portfolio = portfolio[portfolio['Datetime'].dt.date == selected_date]
 
-# Display Results
-st.write("### Data Table:")
-# Display the processed data in a table format
-st.dataframe(portfolio)
-
-
-# Rolling Visualization
-st.write("### Rolling Visualization:")
-
-# After filtering the portfolio based on the selected date
-selected_date = st.date_input("Select Date:", max_value=pd.to_datetime('today'))
-filtered_portfolio = portfolio[portfolio['Datetime'].dt.date == selected_date]
-
-# Check if filtered_portfolio is not None, not empty, and contains 'Symbol' column
-if filtered_portfolio is not None and 'Symbol' in filtered_portfolio.columns and not filtered_portfolio.empty:
+    # Ticker selection
     selected_symbol = st.selectbox("Ticker:", filtered_portfolio['Symbol'].unique())
+
     # Filter the data for the selected symbol
-symbol_data = filtered_portfolio[filtered_portfolio['Symbol'] == selected_symbol]
+    symbol_data = filtered_portfolio[filtered_portfolio['Symbol'] == selected_symbol]
 
-# Check if symbol_data is not None and not empty before setting the index
-if symbol_data is not None and not symbol_data.empty:
-    symbol_data.set_index('Datetime', inplace=True)
-    
-else:
-    st.error("No data available for the selected symbol.")
-else:
-    st.error("No data available for the selected date.")
-    
-symbol_data.set_index('Datetime', inplace=True)
-symbol_data['Close'].plot()
-plt.title(f"Rolling Visualization for {selected_symbol}")
-plt.xlabel("Datetime")
-plt.ylabel("Close Price")
-st.pyplot(plt)
-
-# Download the data table
-if st.button("Download Data Table"):
-    csv = filtered_portfolio.to_csv(index=False)
-    b64 = base64.b64encode(csv.encode()).decode()
-    href = f'<a href="data:file/csv;base64,{b64}" download="filtered_data.csv">Download CSV File</a>'
-    st.markdown(href, unsafe_allow_html=True)
+    # Check if symbol_data is not None and not empty before setting the index
+    if symbol_data is not None and not symbol_data.empty:
+        symbol_data.set_index('Datetime', inplace=True)
+        st.write("### Data Table:")
+        st.dataframe(symbol_data)
+    else:
+        st.error("No data available for the selected symbol.")
