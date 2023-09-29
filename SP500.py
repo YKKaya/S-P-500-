@@ -7,7 +7,7 @@ import base64
 import io
 
 # Function to fetch S&P 500 data
-@st.cache  # Adding caching here
+@st.cache
 def fetch_sp500_data(url):
     try:
         tickers = pd.read_html(url)[0]
@@ -17,7 +17,7 @@ def fetch_sp500_data(url):
         return None
 
 # Function to download stock data
-@st.cache  # Adding caching here
+@st.cache
 def download_stock_data(Stocks):
     try:
         Portfolio = yf.download(Stocks, period='1y', interval='1h')
@@ -46,11 +46,19 @@ def merge_additional_info(portfolio, tickers):
     except Exception as e:
         return None
 
+# Function to download data as csv or excel
+def download_link(object_to_download, download_filename, download_link_text):
+    if isinstance(object_to_download, pd.DataFrame):
+        object_to_download = object_to_download.to_csv(index=False)
+
+    b64 = base64.b64encode(object_to_download.encode()).decode()
+    download_link = f'<a href="data:file/txt;base64,{b64}" download="{download_filename}">{download_link_text}</a>'
+    return download_link
+
 st.title("S&P 500 Analysis")
 st.write("""
 An interactive analysis of S&P 500 companies, allowing users to view historical stock data, returns, and additional company information.
 """)
-
 
 url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
 
@@ -64,42 +72,32 @@ if portfolio is not None:
     portfolio['Founded'] = portfolio['Founded'].str.replace(r'\(.*?\)', '', regex=True).str.strip()
     portfolio['Dollar_Return'] = portfolio['Return'] * portfolio['Adj Close']
 
-    
-    yesterday = datetime.now() - timedelta(days=1)  # Changed this line
+    yesterday = datetime.now() - timedelta(days=1)
     selected_date = st.date_input("Select Date:", yesterday)
     filtered_portfolio = portfolio[portfolio['Datetime'].dt.date == selected_date]
 
-    # Ticker selection
     selected_symbol = st.selectbox("Ticker:", filtered_portfolio['Symbol'].unique())
 
-    # Filter the data for the selected symbol
     symbol_data = filtered_portfolio[filtered_portfolio['Symbol'] == selected_symbol]
 
-    # Check if symbol_data is not None and not empty before setting the index
     if symbol_data is not None and not symbol_data.empty:
-        symbol_data.set_index('Datetime', inplace=True)
-        st.write("### Data Table:")
-        st.dataframe(symbol_data)
+        if 'Datetime' in symbol_data.columns:
+            symbol_data.set_index('Datetime', inplace=True)
+            st.write("### Data Table:")
+            st.dataframe(symbol_data)
+
+            if st.button("Download data as CSV"):
+                tmp_download_link = download_link(symbol_data, 'your_data.csv', 'Click here to download your data as CSV!')
+                st.markdown(tmp_download_link, unsafe_allow_html=True)
+
+            if st.button("Download data as Excel"):
+                towrite = io.BytesIO()
+                downloaded_file = symbol_data.to_excel(towrite, index=False, sheet_name='Sheet1')
+                towrite.seek(0)
+                b64 = base64.b64encode(towrite.read()).decode()
+                tmp_download_link = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}" download="your_data.xlsx">Download excel file</a>'
+                st.markdown(tmp_download_link, unsafe_allow_html=True)
+        else:
+            st.error("Datetime column not found in the data.")
     else:
-        st.error("No data available for the selected symbol.")
-
-if symbol_data is not None and not symbol_data.empty:
-        symbol_data.set_index('Datetime', inplace=True)
-        st.write("### Data Table:")
-        st.dataframe(symbol_data)
-
-        # CSV Download
-        csv = symbol_data.to_csv(index=False)
-        b64_csv = base64.b64encode(csv.encode()).decode()  # some strings <-> bytes conversions necessary here
-        href_csv = f'<a href="data:file/csv;base64,{b64_csv}" download="symbol_data.csv">Download CSV File</a>'
-        st.markdown(href_csv, unsafe_allow_html=True)
-
-        # Excel Download
-        towrite = io.BytesIO()
-        downloaded_file = symbol_data.to_excel(towrite, index=False, sheet_name='Sheet1')  # write to BytesIO buffer
-        towrite.seek(0)  
-        b64_xlsx = base64.b64encode(towrite.read()).decode()  # some strings <-> bytes conversions necessary here
-        href_xlsx = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_xlsx}" download="symbol_data.xlsx">Download Excel File</a>'
-        st.markdown(href_xlsx, unsafe_allow_html=True)
-else:
         st.error("No data available for the selected symbol.")
