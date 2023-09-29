@@ -41,7 +41,7 @@ def merge_additional_info(portfolio, tickers):
     except Exception as e:
       return None
 
-# Title and Description
+
 st.title("S&P 500 Analysis")
 st.write("""
 An interactive analysis of S&P 500 companies, allowing users to view historical stock data, returns, and additional company information.
