@@ -3,6 +3,8 @@ import streamlit as st
 import pandas as pd
 import yfinance as yf
 from datetime import datetime, timedelta
+import base64
+import io
 
 # Function to fetch S&P 500 data
 @st.cache  # Adding caching here
@@ -78,5 +80,27 @@ if portfolio is not None:
         symbol_data.set_index('Datetime', inplace=True)
         st.write("### Data Table:")
         st.dataframe(symbol_data)
+    else:
+        st.error("No data available for the selected symbol.")
+
+if symbol_data is not None and not symbol_data.empty:
+        symbol_data.set_index('Datetime', inplace=True)
+        st.write("### Data Table:")
+        st.dataframe(symbol_data)
+
+        # CSV Download
+        csv = symbol_data.to_csv(index=False)
+        b64_csv = base64.b64encode(csv.encode()).decode()  # some strings <-> bytes conversions necessary here
+        href_csv = f'<a href="data:file/csv;base64,{b64_csv}" download="symbol_data.csv">Download CSV File</a>'
+        st.markdown(href_csv, unsafe_allow_html=True)
+
+        # Excel Download
+        towrite = io.BytesIO()
+        downloaded_file = symbol_data.to_excel(towrite, index=False, sheet_name='Sheet1')  # write to BytesIO buffer
+        towrite.seek(0)  
+        b64_xlsx = base64.b64encode(towrite.read()).decode()  # some strings <-> bytes conversions necessary here
+        href_xlsx = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_xlsx}" download="symbol_data.xlsx">Download Excel File</a>'
+        st.markdown(href_xlsx, unsafe_allow_html=True)
+
     else:
         st.error("No data available for the selected symbol.")
