@@ -89,7 +89,15 @@ filtered_portfolio = portfolio[portfolio['Datetime'].dt.date == selected_date]
 # Check if filtered_portfolio is not None, not empty, and contains 'Symbol' column
 if filtered_portfolio is not None and 'Symbol' in filtered_portfolio.columns and not filtered_portfolio.empty:
     selected_symbol = st.selectbox("Ticker:", filtered_portfolio['Symbol'].unique())
-    # ... Continue with the rest of your code
+    # Filter the data for the selected symbol
+symbol_data = filtered_portfolio[filtered_portfolio['Symbol'] == selected_symbol]
+
+# Check if symbol_data is not None and not empty before setting the index
+if symbol_data is not None and not symbol_data.empty:
+    symbol_data.set_index('Datetime', inplace=True)
+    
+else:
+    st.error("No data available for the selected symbol.")
 else:
     st.error("No data available for the selected date.")
     
