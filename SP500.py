@@ -77,3 +77,22 @@ portfolio['Dollar_Return'] = portfolio['Return'] * portfolio['Adj Close']
 st.write("### Data Table:")
 # Display the processed data in a table format
 st.dataframe(portfolio)
+
+
+# Rolling Visualization
+st.write("### Rolling Visualization:")
+selected_symbol = st.selectbox("Select Symbol:", filtered_portfolio['Symbol'].unique())
+symbol_data = filtered_portfolio[filtered_portfolio['Symbol'] == selected_symbol]
+symbol_data.set_index('Datetime', inplace=True)
+symbol_data['Close'].plot()
+plt.title(f"Rolling Visualization for {selected_symbol}")
+plt.xlabel("Datetime")
+plt.ylabel("Close Price")
+st.pyplot(plt)
+
+# Download the data table
+if st.button("Download Data Table"):
+    csv = filtered_portfolio.to_csv(index=False)
+    b64 = base64.b64encode(csv.encode()).decode()
+    href = f'<a href="data:file/csv;base64,{b64}" download="filtered_data.csv">Download CSV File</a>'
+    st.markdown(href, unsafe_allow_html=True)
