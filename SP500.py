@@ -2,12 +2,12 @@
 import streamlit as st
 import pandas as pd
 import yfinance as yf
-from datetime import datetime, timedelta
 import base64
 import io
+from datetime import datetime, timedelta
 
 # Function to fetch S&P 500 data
-@st.cache
+@st.cache  # Adding caching here
 def fetch_sp500_data(url):
     try:
         tickers = pd.read_html(url)[0]
@@ -17,7 +17,7 @@ def fetch_sp500_data(url):
         return None
 
 # Function to download stock data
-@st.cache
+@st.cache  # Adding caching here
 def download_stock_data(Stocks):
     try:
         Portfolio = yf.download(Stocks, period='1y', interval='1h')
@@ -46,7 +46,7 @@ def merge_additional_info(portfolio, tickers):
     except Exception as e:
         return None
 
-# Function to download data as csv or excel
+# Function to download data as csv
 def download_link(object_to_download, download_filename, download_link_text):
     if isinstance(object_to_download, pd.DataFrame):
         object_to_download = object_to_download.to_csv(index=False)
@@ -60,6 +60,7 @@ st.write("""
 An interactive analysis of S&P 500 companies, allowing users to view historical stock data, returns, and additional company information.
 """)
 
+
 url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
 
 tickers = fetch_sp500_data(url)
@@ -72,12 +73,15 @@ if portfolio is not None:
     portfolio['Founded'] = portfolio['Founded'].str.replace(r'\(.*?\)', '', regex=True).str.strip()
     portfolio['Dollar_Return'] = portfolio['Return'] * portfolio['Adj Close']
 
+    # Date selection
     yesterday = datetime.now() - timedelta(days=1)
     selected_date = st.date_input("Select Date:", yesterday)
     filtered_portfolio = portfolio[portfolio['Datetime'].dt.date == selected_date]
 
+    # Ticker selection
     selected_symbol = st.selectbox("Ticker:", filtered_portfolio['Symbol'].unique())
 
+    # Filter the data for the selected symbol
     symbol_data = filtered_portfolio[filtered_portfolio['Symbol'] == selected_symbol]
 
     if symbol_data is not None and not symbol_data.empty:
