@@ -81,7 +81,6 @@ st.dataframe(portfolio)
 
 # Rolling Visualization
 st.write("### Rolling Visualization:")
-selected_symbol = st.selectbox("Ticker:", filtered_portfolio['Symbol'].unique())
 
 # After filtering the portfolio based on the selected date
 filtered_portfolio = portfolio[portfolio['Datetime'].dt.date == selected_date]
