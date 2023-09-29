@@ -83,6 +83,7 @@ st.dataframe(portfolio)
 st.write("### Rolling Visualization:")
 
 # After filtering the portfolio based on the selected date
+selected_date = st.date_input("Select Date:", max_value=pd.to_datetime('today'))
 filtered_portfolio = portfolio[portfolio['Datetime'].dt.date == selected_date]
 
 # Check if filtered_portfolio is not None, not empty, and contains 'Symbol' column
