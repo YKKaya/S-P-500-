@@ -101,6 +101,5 @@ if symbol_data is not None and not symbol_data.empty:
         b64_xlsx = base64.b64encode(towrite.read()).decode()  # some strings <-> bytes conversions necessary here
         href_xlsx = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64_xlsx}" download="symbol_data.xlsx">Download Excel File</a>'
         st.markdown(href_xlsx, unsafe_allow_html=True)
-
-    else:
+else:
         st.error("No data available for the selected symbol.")
