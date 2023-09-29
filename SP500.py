@@ -81,7 +81,7 @@ st.dataframe(portfolio)
 
 # Rolling Visualization
 st.write("### Rolling Visualization:")
-selected_symbol = st.selectbox("Select Symbol:", filtered_portfolio['Symbol'].unique())
+selected_symbol = st.selectbox("Ticker:", filtered_portfolio['Symbol'].unique())
 symbol_data = filtered_portfolio[filtered_portfolio['Symbol'] == selected_symbol]
 symbol_data.set_index('Datetime', inplace=True)
 symbol_data['Close'].plot()
