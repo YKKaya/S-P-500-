@@ -57,7 +57,7 @@ def download_link(object_to_download, download_filename, download_link_text):
 
 st.title("S&P 500 Analysis")
 st.write("""
-An interactive analysis of S&P 500 companies, allowing users to view historical stock data, returns, and additional company information.
+An interactive analysis of S&P 500 companies, allowing users to view and download historical stock data, returns,  additional company information. The dataset provides 1 year of historical data, recorded at hourly intervals. 
 """)
 
 
