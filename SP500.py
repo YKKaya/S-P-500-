@@ -2,6 +2,7 @@
 import streamlit as st
 import pandas as pd
 import yfinance as yf
+from datetime import datetime, timedelta
 
 # Function to fetch S&P 500 data
 @st.cache  # Adding caching here
