@@ -4,6 +4,7 @@ import pandas as pd
 import yfinance as yf
 
 # Function to fetch S&P 500 data
+@st.cache  # Adding caching here
 def fetch_sp500_data(url):
     try:
         tickers = pd.read_html(url)[0]
@@ -13,9 +14,10 @@ def fetch_sp500_data(url):
         return None
 
 # Function to download stock data
+@st.cache  # Adding caching here
 def download_stock_data(Stocks):
     try:
-        Portfolio = yf.download(Stocks , period='1y', interval='1h')
+        Portfolio = yf.download(Stocks, period='1y', interval='1h')
         return Portfolio
     except Exception as e:
         st.error(f"Error downloading stock data: {e}")
@@ -39,8 +41,7 @@ def merge_additional_info(portfolio, tickers):
         portfolio = pd.merge(portfolio, company_info, on='Symbol', how='left')
         return portfolio
     except Exception as e:
-      return None
-
+        return None
 
 st.title("S&P 500 Analysis")
 st.write("""
