@@ -62,7 +62,25 @@ def display_high_low(symbol_data, selected_symbols, start_date, end_date):
             st.write(f"Highest trading price: ${max_return_row['High']:.2f} on {max_return_row['Datetime'].strftime('%A, %B %d at %H:%M')}")
     except Exception as e:
         st.error(f"An error occurred: {e}")
-
+        
+# Function to display the time series chart
+def display_time_series_chart(symbol_data, selected_symbols, start_date, end_date):
+    try:
+        for symbol in selected_symbols:
+            single_symbol_data = symbol_data[symbol_data['Symbol'] == symbol]
+            single_symbol_data['Datetime'] = pd.to_datetime(single_symbol_data['Datetime'])  # Ensure Datetime is in datetime format
+            if single_symbol_data.empty:
+                st.error(f"No data available for {symbol} in the selected date range.")
+                continue
+            
+            # Filter data within the selected date range
+            filtered_data = single_symbol_data[(single_symbol_data['Datetime'].dt.date >= start_date) & (single_symbol_data['Datetime'].dt.date <= end_date)]
+            
+            # Display a time series chart
+            st.write(f"Time Series Chart for {symbol}")
+            st.line_chart(filtered_data.set_index('Datetime')['Close'])
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
 
 # Main part of the code
 st.title("S&P 500 Companies Hourly Returns")
@@ -94,7 +112,10 @@ if portfolio is not None:
 
     # Call the display_high_low function here
     display_high_low(symbol_data, selected_symbols, start_date, end_date)
-
+    
+    # Display the time series chart
+    display_time_series_chart(symbol_data, selected_symbols, start_date, end_date)
+    
     # Now display the data table
     if 'Datetime' in symbol_data.columns:
         symbol_data.set_index('Datetime', inplace=True)
