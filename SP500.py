@@ -59,7 +59,7 @@ def display_high_low(symbol_data, selected_symbols, start_date, end_date):
             
             st.write(f"For the dates {start_date} to {end_date}, {company_name} recorded its:")
             st.write(f"Lowest trading price: ${min_return_row['Low']:.2f} on {min_return_row['Datetime'].strftime('%A, %B %d at %H:%M')}")
-            st.write(f"Peak trading price: ${max_return_row['High']:.2f} on {max_return_row['Datetime'].strftime('%A, %B %d at %H:%M')}")
+            st.write(f"Highest trading price: ${max_return_row['High']:.2f} on {max_return_row['Datetime'].strftime('%A, %B %d at %H:%M')}")
     except Exception as e:
         st.error(f"An error occurred: {e}")
 
