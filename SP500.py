@@ -82,9 +82,15 @@ if portfolio is not None:
     portfolio['Founded'] = portfolio['Founded'].str.replace(r'\(.*?\)', '', regex=True).str.strip()
     portfolio['Dollar_Return'] = portfolio['Return'] * portfolio['Adj Close']
 
-    # Date selection
-    selected_date = st.date_input("Select Date:", last_weekday())
-    filtered_portfolio = portfolio[portfolio['Datetime'].dt.date == selected_date]
+    # Date range selection
+    start_date, end_date = st.date_input(
+        "Select Date Range:",
+        value=(last_weekday() - timedelta(days=30), last_weekday()),  # Default value is last 30 days
+        min_value=datetime.now() - timedelta(days=365),  # Min value is one year ago
+        max_value=last_weekday(),  # Max value is the last working day
+    )
+
+    filtered_portfolio = portfolio[(portfolio['Datetime'].dt.date >= start_date) & (portfolio['Datetime'].dt.date <= end_date)]
 
     # Ticker selection
     selected_symbol = st.selectbox("Ticker:", filtered_portfolio['Symbol'].unique())
