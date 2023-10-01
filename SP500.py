@@ -47,10 +47,8 @@ def display_high_low(symbol_data, selected_symbols, start_date, end_date):
             max_return_row = single_symbol_data.loc[single_symbol_data['High'].idxmax()]  # Get the row with the maximum 'High' value
             
             st.write(f"For the dates {start_date} to {end_date}, {symbol} recorded its:")
-            st.write(f"Lowest trading price: ${min_return_row['Low']:.2f}")
-            st.write(f"on {min_return_row['Datetime'].strftime('%A, %B %d at %H:%M')}")
-            st.write(f"Peak trading price: ${max_return_row['High']:.2f}")
-            st.write(f"on {max_return_row['Datetime'].strftime('%A, %B %d at %H:%M')}")
+            st.write(f"Lowest trading price: ${min_return_row['Low']:.2f} on {min_return_row['Datetime'].strftime('%A, %B %d at %H:%M')}")
+            st.write(f"Peak trading price: ${max_return_row['High']:.2f} on {max_return_row['Datetime'].strftime('%A, %B %d at %H:%M')}")
     except Exception as e:
         st.error(f"An error occurred: {e}")
 
