@@ -4,7 +4,6 @@ import pandas as pd
 import yfinance as yf
 import base64
 import io
-import numpy as np
 from datetime import datetime, timedelta
 
 # Function to fetch S&P 500 data
@@ -55,7 +54,6 @@ def download_link(object_to_download, download_filename, download_link_text):
     b64 = base64.b64encode(object_to_download.encode()).decode()
     download_link = f'<a href="data:file/txt;base64,{b64}" download="{download_filename}">{download_link_text}</a>'
     return download_link
-
 
 # Function to get the last weekday
 def last_weekday():
