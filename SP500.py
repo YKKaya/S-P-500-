@@ -1,14 +1,13 @@
 # Importing required libraries
 import streamlit as st
 import pandas as pd
-import yfinance as yf
 import base64
 import io
 from datetime import datetime, timedelta
 import pandas_datareader as pdr
 
 # Function to fetch S&P 500 data
-@st.cache  # Adding caching here
+@st.cache(suppress_st_warning=True)  # Adding caching and suppressing warning
 def fetch_sp500_data(url):
     try:
         tickers = pd.read_html(url)[0]
@@ -18,12 +17,13 @@ def fetch_sp500_data(url):
         return None
 
 # Function to download stock data
-@st.cache  # Adding caching here
-
+@st.cache(suppress_st_warning=True)  # Adding caching and suppressing warning
 def download_stock_data(Stocks):
     try:
         # Use pandas_datareader to fetch the data
-        Portfolio = pdr.get_data_yahoo(Stocks, period='1y', interval='1h')
+        end = datetime.now()
+        start = end - timedelta(days=365)  # One year ago
+        Portfolio = pdr.get_data_yahoo(Stocks, start=start, end=end, interval='1h')
         return Portfolio
     except Exception as e:
         st.error(f"Error downloading stock data: {e}")
