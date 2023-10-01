@@ -100,7 +100,9 @@ if portfolio is not None:
     filtered_portfolio = portfolio[(portfolio['Datetime'].dt.date >= start_date) & (portfolio['Datetime'].dt.date <= end_date)]
 
     # Ticker selection
-    selected_symbols = st.multiselect("Tickers:", filtered_portfolio['Symbol'].unique())
+    # Ticker selection
+    selected_symbols = st.multiselect("Tickers:", filtered_portfolio['Symbol'].unique(), default=['AAPL'])
+
 
     # Filter the data for the selected symbols
     symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
