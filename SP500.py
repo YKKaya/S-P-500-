@@ -21,6 +21,8 @@ def fetch_sp500_data(url):
 def download_stock_data(Stocks):
     try:
         Portfolio = yf.download(Stocks, period='1y', interval='1h')
+        # Ensure 'Datetime' is of datetime type right after downloading the data
+        Portfolio.index = pd.to_datetime(Portfolio.index)
         return Portfolio
     except Exception as e:
         st.error(f"Error downloading stock data: {e}")
@@ -102,8 +104,6 @@ if portfolio is not None:
     symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
 
     if symbol_data is not None and not symbol_data.empty:
-        # Ensure 'Datetime' is of datetime type
-        symbol_data['Datetime'] = pd.to_datetime(symbol_data['Datetime'])
         st.write("### Data Table:")
         st.dataframe(symbol_data)
 
