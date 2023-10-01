@@ -65,7 +65,7 @@ def display_high_low(symbol_data, selected_symbols, start_date, end_date):
 
 
 # Main part of the code
-st.title("S&P 500 Analysis")
+st.title("S&P 500 Companies hourly return")
 st.write("""
 An interactive analysis of S&P 500 companies, allowing users to view and download historical stock data, returns, 
 additional company information. The dataset provides 1 year of historical data, recorded at hourly intervals. 
