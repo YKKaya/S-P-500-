@@ -83,9 +83,16 @@ if portfolio is not None:
     portfolio['Dollar_Return'] = portfolio['Return'] * portfolio['Adj Close']
 
     # Date range selection
-    start_date, end_date = st.date_input(
-        "Select Date Range:",
-        value=(last_weekday() - timedelta(days=1), last_weekday()),  # Default value is last 30 days
+    st.write("Select Date Range:")
+    start_date = st.date_input(
+        "Start Date",
+        value=last_weekday() - timedelta(days=30),  # Default value is 30 days ago
+        min_value=datetime.now() - timedelta(days=365),  # Min value is one year ago
+        max_value=last_weekday(),  # Max value is the last working day
+    )
+    end_date = st.date_input(
+        "End Date",
+        value=last_weekday(),  # Default value is the last working day
         min_value=datetime.now() - timedelta(days=365),  # Min value is one year ago
         max_value=last_weekday(),  # Max value is the last working day
     )
