@@ -77,7 +77,7 @@ if portfolio is not None:
     symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
 
     # Call the display_high_low function here
-    display_high_low(symbol_data, selected_symbols, start_date, end_date)
+     st.write(display_high_low(symbol_data, selected_symbols, start_date, end_date))
 
     # Now display the data table
     if 'Datetime' in symbol_data.columns:
