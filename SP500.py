@@ -35,46 +35,24 @@ def process_data(Portfolio):
         st.error(f"Error processing data: {e}")
         return None
 
-# Function to merge additional info
-def merge_additional_info(portfolio, tickers):
-    try:
-        company_info_columns = ['Symbol', 'Security', 'GICS Sector', 'GICS Sub-Industry', 'Headquarters Location', 'Date added']
-        if 'Founded' in tickers.columns:
-            company_info_columns.append('Founded')
-        company_info = tickers[company_info_columns]
-        company_info.columns = ['Symbol', 'Company_Name', 'Industry', 'Sub_Industry', 'Headquarters_Location', 'Date_Added'] + (['Founded'] if 'Founded' in tickers.columns else [])
-        portfolio = pd.merge(portfolio, company_info, on='Symbol', how='left')
-        return portfolio
-    except Exception as e:
-        return None
-
-# Function to download data as csv
-def download_link(object_to_download, download_filename, download_link_text):
-    if isinstance(object_to_download, pd.DataFrame):
-        object_to_download = object_to_download.to_csv(index=False)
-
-    b64 = base64.b64encode(object_to_download.encode()).decode()
-    download_link = f'<a href="data:file/txt;base64,{b64}" download="{download_filename}">{download_link_text}</a>'
-    return download_link
-
-# Function to get the last weekday
-def last_weekday():
-    today = datetime.now()
-    offset = 1
-    while (today - timedelta(days=offset)).weekday() > 4:
-        offset += 1
-    last_working_day = today - timedelta(days=offset)
-    return last_working_day
-# Function to display highest and lowest return
+# Function to display high and low return text
 def display_high_low(symbol_data, selected_symbols, start_date, end_date):
-    for symbol in selected_symbols:
-        single_symbol_data = symbol_data[symbol_data['Symbol'] == symbol]
-        min_return_row = single_symbol_data[single_symbol_data['Return'] == single_symbol_data['Return'].min()]
-        max_return_row = single_symbol_data[single_symbol_data['Return'] == single_symbol_data['Return'].max()]
-        min_time = min_return_row.index[0].strftime("%A %H:%M") if not min_return_row.empty else "N/A"
-        max_time = max_return_row.index[0].strftime("%A %H:%M") if not max_return_row.empty else "N/A"
-        st.write(f"{symbol} had its lowest trading price of its stock on {min_time} and highest trading price of its stock at {max_time} for the selected dates of {start_date} to {end_date}")
+    try:
+        if symbol_data.empty or not selected_symbols:
+            st.error("No data available for the selected symbol and date range.")
+            return
+        highest_return_row = symbol_data[symbol_data['High'] == symbol_data['High'].max()]
+        lowest_return_row = symbol_data[symbol_data['Low'] == symbol_data['Low'].min()]
+        highest_return_time = highest_return_row.index[0]
+        lowest_return_time = lowest_return_row.index[0]
+        highest_return_day = highest_return_time.strftime("%A")
+        lowest_return_day = lowest_return_time.strftime("%A")
+        text = f"{', '.join(selected_symbols)} had its lowest trading price of its stock on {lowest_return_day} at {lowest_return_time.strftime('%H:%M')} and highest trading price of its stock at {highest_return_day} at {highest_return_time.strftime('%H:%M')} for the selected dates of {start_date} to {end_date}."
+        st.text(text)
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
 
+# Main code
 st.title("S&P 500 Analysis")
 st.write("""
 An interactive analysis of S&P 500 companies, allowing users to view and download historical stock data, returns, 
@@ -82,40 +60,18 @@ additional company information. The dataset provides 1 year of historical data, 
 """)
 
 url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
-
 tickers = fetch_sp500_data(url)
 Stocks = tickers.Symbol.to_list()
 Portfolio = download_stock_data(Stocks)
 portfolio = process_data(Portfolio)
-portfolio = merge_additional_info(portfolio, tickers)
 
 if portfolio is not None:
-    if 'Founded' in portfolio.columns:
-        portfolio['Founded'] = portfolio['Founded'].str.replace(r'\(.*?\)', '', regex=True).str.strip()
-    portfolio['Dollar_Return'] = portfolio['Return'] * portfolio['Adj Close']
-
-    # Date range selection
-    st.write("Select Date Range:")
-    start_date = st.date_input(
-        "Start Date",
-        value=last_weekday() - timedelta(days=30),
-        min_value=datetime.now() - timedelta(days=365),
-        max_value=last_weekday(),
-    )
-    end_date = st.date_input(
-        "End Date",
-        value=last_weekday(),
-        min_value=datetime.now() - timedelta(days=365),
-        max_value=last_weekday(),
-    )
-
+    start_date = st.date_input("Start Date", value=datetime.now() - timedelta(days=30))
+    end_date = st.date_input("End Date", value=datetime.now())
     filtered_portfolio = portfolio[(portfolio['Datetime'].dt.date >= start_date) & (portfolio['Datetime'].dt.date <= end_date)]
-
-    # Ticker selection
     selected_symbols = st.multiselect("Tickers:", filtered_portfolio['Symbol'].unique(), default=['AAPL'])
-
-    # Filter the data for the selected symbols
     symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
+    display_high_low(symbol_data, selected_symbols, start_date, end_date)
 
     if symbol_data is not None and not symbol_data.empty:
         if 'Datetime' in symbol_data.columns:
@@ -138,5 +94,3 @@ if portfolio is not None:
             st.error("Datetime column not found in the data.")
     else:
         st.error("No data available for the selected symbol.")
-    # Call the function to display the text
-    display_high_low(symbol_data, selected_symbols, start_date, end_date)
