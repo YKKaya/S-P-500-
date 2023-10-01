@@ -33,7 +33,16 @@ def process_data(Portfolio):
         st.error(f"Error processing data: {e}")
         return None
 
-
+# Function to merge additional info
+def merge_additional_info(portfolio, tickers):
+    try:
+        company_info = tickers[['Symbol', 'Security', 'GICS Sector', 'GICS Sub-Industry', 'Headquarters Location', 'Date added', 'Founded']]
+        company_info.columns = ['Symbol', 'Company_Name', 'Industry', 'Sub_Industry', 'Headquarters_Location', 'Date_Added', 'Founded']
+        portfolio = pd.merge(portfolio, company_info, on='Symbol', how='left')
+        return portfolio
+    except Exception as e:
+        return None
+        
 # Function to display high and low return text
 def display_high_low(symbol_data, selected_symbols, start_date, end_date):
     try:
@@ -64,6 +73,7 @@ tickers = fetch_sp500_data(url)
 Stocks = tickers.Symbol.to_list()
 Portfolio = download_stock_data(Stocks)
 portfolio = process_data(Portfolio)
+portfolio = merge_additional_info(portfolio, tickers)
 
 if portfolio is not None:
     # Date range selection
