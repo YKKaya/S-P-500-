@@ -36,16 +36,18 @@ def process_data(Portfolio):
         return None
 
 # Function to display high and low return text
+
 def display_high_low(symbol_data, selected_symbols, start_date, end_date):
     try:
         for symbol in selected_symbols:
             single_symbol_data = symbol_data[symbol_data['Symbol'] == symbol]
+            single_symbol_data['Datetime'] = pd.to_datetime(single_symbol_data['Datetime'])  # Ensure Datetime is in datetime format
             if single_symbol_data.empty:
                 st.error(f"No data available for {symbol} in the selected date range.")
                 continue
-            min_return_row = single_symbol_data[single_symbol_data['Low'] == single_symbol_data['Low'].min()]
-            max_return_row = single_symbol_data[single_symbol_data['High'] == single_symbol_data['High'].max()]
-            text = f"For the dates **{start_date} to {end_date}**, **{symbol}** recorded its lowest trading price of **${min_return_row['Low'].values[0]:.2f}** on **{min_return_row['Datetime'].dt.strftime('%A, %B %d at %H:%M').values[0]}** and its peak trading price of **${max_return_row['High'].values[0]:.2f}** on **{max_return_row['Datetime'].dt.strftime('%A, %B %d at %H:%M').values[0]}**."
+            min_return_row = single_symbol_data.loc[single_symbol_data['Low'].idxmin()]  # Get the row with the minimum 'Low' value
+            max_return_row = single_symbol_data.loc[single_symbol_data['High'].idxmax()]  # Get the row with the maximum 'High' value
+            text = f"For the dates **{start_date} to {end_date}**, **{symbol}** recorded its lowest trading price of **${min_return_row['Low']:.2f}** on **{min_return_row['Datetime'].strftime('%A, %B %d at %H:%M')}** and its peak trading price of **${max_return_row['High']:.2f}** on **{max_return_row['Datetime'].strftime('%A, %B %d at %H:%M')}**."
             st.markdown(text)
     except Exception as e:
         st.error(f"An error occurred: {e}")
