@@ -88,16 +88,17 @@ def display_time_series_chart(symbol_data, selected_symbols, start_date, end_dat
             
             for symbol in selected_symbols:
                 symbol_data = filtered_data[filtered_data['Symbol'] == symbol]
-                fig.add_trace(
-                    go.Scatter(
-                        x=symbol_data['Datetime'],
-                        y=symbol_data['Close'],
-                        mode='lines',
-                        name=symbol,
-                        line=dict(color=color_mapping[symbol], width=2),
-                        showlegend=True  # Show legend entry for this symbol
+                # Add trace only once for each unique symbol
+                if symbol not in fig.data:
+                    fig.add_trace(
+                        go.Scatter(
+                            x=symbol_data['Datetime'],
+                            y=symbol_data['Close'],
+                            mode='lines',
+                            name=symbol,
+                            line=dict(color=color_mapping[symbol], width=2)
+                        )
                     )
-                )
             
             # Set chart title
             fig.update_layout(
