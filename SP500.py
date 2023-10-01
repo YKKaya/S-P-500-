@@ -79,19 +79,25 @@ def display_time_series_chart(symbol_data, selected_symbols, start_date, end_dat
             selected_tickers = ', '.join(selected_symbols)  # Join selected tickers with commas
             
             # Create a Plotly line chart
-            fig = px.line(filtered_data, x='Datetime', y='Close', color='Symbol', title=f"Time Series Chart for {selected_tickers} Tickers")
-            
-            # Customize the chart to show negative values in red
-            fig.update_traces(
-                line=dict(color='red', width=2),
-                selector=dict(type='scatter', mode='lines')
+            fig = px.line(
+                filtered_data, x='Datetime', y='Close', color='Symbol',
+                title=f"Time Series Chart for {selected_tickers} Tickers"
             )
+            
+            # Customize the chart
+            # Map each ticker to a different color
+            color_mapping = {symbol: f'rgba({i * 30}, {i * 40}, {i * 50}, 1)' for i, symbol in enumerate(selected_symbols)}
+            for symbol in selected_symbols:
+                fig.update_traces(
+                    line=dict(color=color_mapping[symbol], width=2),
+                    selector=dict(name=symbol)
+                )
             
             # Show the chart
             st.plotly_chart(fig)
     except Exception as e:
         st.error(f"An error occurred: {e}")
-
+        
 # Main part of the code
 st.title("S&P 500 Companies Hourly Returns")
 st.write("""
