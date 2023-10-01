@@ -36,15 +36,27 @@ def process_data(Portfolio):
         return None
 
 # Function to display high and low return text
-def display_high_low(data, symbols, start_date, end_date):
-    for symbol in symbols:
-        symbol_data = data[data['Symbol'] == symbol]
-        min_return_row = symbol_data[symbol_data['Return'] == symbol_data['Return'].min()]
-        max_return_row = symbol_data[symbol_data['Return'] == symbol_data['Return'].max()]
-        st.write(f"{symbol} had its lowest trading price of its stock on {min_return_row['Datetime'].dt.strftime('%A %H:%M').values[0]} and highest trading price of its stock at {max_return_row['Datetime'].dt.strftime('%A %H:%M').values[0]} for the selected dates of {start_date} to {end_date}")
+def display_high_low(symbol_data, selected_symbols, start_date, end_date):
+    try:
+        for symbol in selected_symbols:
+            single_symbol_data = symbol_data[symbol_data['Symbol'] == symbol]
+            if single_symbol_data.empty:
+                st.error(f"No data available for {symbol} in the selected date range.")
+                continue
+            min_return_row = single_symbol_data[single_symbol_data['Low'] == single_symbol_data['Low'].min()]
+            max_return_row = single_symbol_data[single_symbol_data['High'] == single_symbol_data['High'].max()]
+            text = f"{symbol} had its lowest trading price of its stock on {min_return_row['Datetime'].dt.strftime('%A %H:%M').values[0]} and highest trading price of its stock at {max_return_row['Datetime'].dt.strftime('%A %H:%M').values[0]} for the selected dates of {start_date} to {end_date}"
+            st.write(text)
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
 
-# Main code
+# Main part of the code
 st.title("S&P 500 Analysis")
+st.write("""
+An interactive analysis of S&P 500 companies, allowing users to view and download historical stock data, returns, 
+additional company information. The dataset provides 1 year of historical data, recorded at hourly intervals. 
+""")
+
 url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
 tickers = fetch_sp500_data(url)
 Stocks = tickers.Symbol.to_list()
@@ -52,20 +64,26 @@ Portfolio = download_stock_data(Stocks)
 portfolio = process_data(Portfolio)
 
 if portfolio is not None:
-    start_date = st.date_input("Start Date", value=datetime.now() - timedelta(days=30))
-    end_date = st.date_input("End Date", value=datetime.now())
+    # Date range selection
+    st.write("Select Date Range:")
+    start_date = st.date_input("Start Date", value=datetime.now() - timedelta(days=30), max_value=datetime.now())
+    end_date = st.date_input("End Date", value=datetime.now(), max_value=datetime.now())
     filtered_portfolio = portfolio[(portfolio['Datetime'].dt.date >= start_date) & (portfolio['Datetime'].dt.date <= end_date)]
-    selected_symbols = st.multiselect("Tickers:", filtered_portfolio['Symbol'].unique(), default=['AAPL'])
+
+    # Ticker selection
+    selected_symbols = st.multiselect("Tickers:", filtered_portfolio['Symbol'].unique())
+
+    # Filter the data for the selected symbols
     symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
 
-    # Call to the display_high_low function
+    # Call the display_high_low function here
     display_high_low(symbol_data, selected_symbols, start_date, end_date)
 
-    if symbol_data is not None and not symbol_data.empty:
-        if 'Datetime' in symbol_data.columns:
-            symbol_data.set_index('Datetime', inplace=True)
-            st.write("### Data Table:")
-            st.dataframe(symbol_data)
+    # Now display the data table
+    if 'Datetime' in symbol_data.columns:
+        symbol_data.set_index('Datetime', inplace=True)
+        st.write("### Data Table:")
+        st.dataframe(symbol_data)
 
             if st.button("Download data as CSV"):
                 tmp_download_link = download_link(symbol_data, 'your_data.csv', 'Click here to download your data as CSV!')
