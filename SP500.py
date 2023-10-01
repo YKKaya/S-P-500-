@@ -50,6 +50,15 @@ def display_high_low(symbol_data, selected_symbols, start_date, end_date):
     except Exception as e:
         st.error(f"An error occurred: {e}")
 
+# Function to create download link
+def download_link(object_to_download, download_filename, download_link_text):
+    if isinstance(object_to_download, pd.DataFrame):
+        object_to_download = object_to_download.to_csv(index=False)
+
+    b64 = base64.b64encode(object_to_download.encode()).decode()
+    download_link = f'<a href="data:file/csv;base64,{b64}" download="{download_filename}">{download_link_text}</a>'
+    return download_link
+
 # Main part of the code
 st.title("S&P 500 Analysis")
 st.write("""
@@ -77,7 +86,7 @@ if portfolio is not None:
     symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
 
     # Call the display_high_low function here
-    display_high_low = st.write(display_high_low(symbol_data, selected_symbols, start_date, end_date))
+    display_high_low(symbol_data, selected_symbols, start_date, end_date)
 
     # Now display the data table
     if 'Datetime' in symbol_data.columns:
@@ -85,18 +94,18 @@ if portfolio is not None:
         st.write("### Data Table:")
         st.dataframe(symbol_data)
 
-            if st.button("Download data as CSV"):
-                tmp_download_link = download_link(symbol_data, 'your_data.csv', 'Click here to download your data as CSV!')
-                st.markdown(tmp_download_link, unsafe_allow_html=True)
+        if st.button("Download data as CSV"):
+            tmp_download_link = download_link(symbol_data, 'your_data.csv', 'Click here to download your data as CSV!')
+            st.markdown(tmp_download_link, unsafe_allow_html=True)
 
-            if st.button("Download data as Excel"):
-                towrite = io.BytesIO()
-                downloaded_file = symbol_data.to_excel(towrite, index=False, sheet_name='Sheet1')
-                towrite.seek(0)
-                b64 = base64.b64encode(towrite.read()).decode()
-                tmp_download_link = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}" download="your_data.xlsx">Download excel file</a>'
-                st.markdown(tmp_download_link, unsafe_allow_html=True)
-        else:
-            st.error("Datetime column not found in the data.")
+        if st.button("Download data as Excel"):
+            towrite = io.BytesIO()
+            downloaded_file = symbol_data.to_excel(towrite, index=False, sheet_name='Sheet1')
+            towrite.seek(0)
+            b64 = base64.b64encode(towrite.read()).decode()
+            tmp_download_link = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}" download="your_data.xlsx">Download excel file</a>'
+            st.markdown(tmp_download_link, unsafe_allow_html=True)
     else:
-        st.error("No data available for the selected symbol.")
+        st.error("Datetime column not found in the data.")
+else:
+    st.error("No data available for the selected symbol.")
