@@ -102,23 +102,20 @@ if portfolio is not None:
     symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
 
     if symbol_data is not None and not symbol_data.empty:
-        if 'Datetime' in symbol_data.columns:
-            symbol_data.set_index('Datetime', inplace=True)
-            st.write("### Data Table:")
-            st.dataframe(symbol_data)
+        # Convert 'Datetime' to datetime before setting it as index
+        symbol_data['Datetime'] = pd.to_datetime(symbol_data['Datetime'])
+        symbol_data.set_index('Datetime', inplace=True)
+        st.write("### Data Table:")
+        st.dataframe(symbol_data)
 
-            if st.button("Download data as CSV"):
-                tmp_download_link = download_link(symbol_data, 'your_data.csv', 'Click here to download your data as CSV!')
-                st.markdown(tmp_download_link, unsafe_allow_html=True)
+        if st.button("Download data as CSV"):
+            tmp_download_link = download_link(symbol_data, 'your_data.csv', 'Click here to download your data as CSV!')
+            st.markdown(tmp_download_link, unsafe_allow_html=True)
 
-            if st.button("Download data as Excel"):
-                towrite = io.BytesIO()
-                downloaded_file = symbol_data.to_excel(towrite, index=False, sheet_name='Sheet1')
-                towrite.seek(0)
-                b64 = base64.b64encode(towrite.read()).decode()
-                tmp_download_link = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}" download="your_data.xlsx">Download excel file</a>'
-                st.markdown(tmp_download_link, unsafe_allow_html=True)
-        else:
-            st.error("Datetime column not found in the data.")
-    else:
-        st.error("No data available for the selected symbols.")
+        if st.button("Download data as Excel"):
+            towrite = io.BytesIO()
+            downloaded_file = symbol_data.to_excel(towrite, index=False, sheet_name='Sheet1')
+            towrite.seek(0)
+            b64 = base64.b64encode(towrite.read()).decode()
+            tmp_download_link = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}" download="your_data.xlsx">Download excel file</a>'
+            st.markdown(tmp_download_link, unsafe_allow_html=True)
