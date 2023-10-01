@@ -21,6 +21,8 @@ def fetch_sp500_data(url):
 def download_stock_data(Stocks):
     try:
         Portfolio = yf.download(Stocks, period='1y', interval='1h')
+        Portfolio.index = pd.to_datetime(Portfolio.index)  # Convert index to datetime
+        Portfolio.index = Portfolio.index.tz_localize('UTC')  # Localize to UTC
         return Portfolio
     except Exception as e:
         st.error(f"Error downloading stock data: {e}")
