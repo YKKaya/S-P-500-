@@ -1,4 +1,4 @@
-#S&P 500 Analysis Streamlit App
+# S&P 500 Analysis Streamlit App
 This Streamlit app provides an interactive analysis of S&P 500 companies, allowing users to view and download historical stock data, returns, and additional company information.
 
 ## Features
