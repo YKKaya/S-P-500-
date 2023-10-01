@@ -96,7 +96,7 @@ if portfolio is not None:
     portfolio['Founded'] = portfolio['Founded'].str.replace(r'\(.*?\)', '', regex=True).str.strip()
     portfolio['Dollar_Return'] = portfolio['Return'] * portfolio['Adj Close']
 
-    start_date = st.date_input("Start Date", value=last_weekday() - timedelta(days=30), min_value=datetime.now() - timedelta(days=365), max_value=last_weekday())
+    start_date = st.date_input("Start Date", value=last_weekday() - timedelta(days=1), min_value=datetime.now() - timedelta(days=365), max_value=last_weekday())
     end_date = st.date_input("End Date", value=last_weekday(), min_value=datetime.now() - timedelta(days=365), max_value=last_weekday())
 
     filtered_portfolio = portfolio[(portfolio['Datetime'].dt.date >= start_date) & (portfolio['Datetime'].dt.date <= end_date)]
