@@ -5,6 +5,7 @@ import yfinance as yf
 import base64
 import io
 from datetime import datetime, timedelta
+import pandas_datareader as pdr
 
 # Function to fetch S&P 500 data
 @st.cache  # Adding caching here
@@ -18,9 +19,11 @@ def fetch_sp500_data(url):
 
 # Function to download stock data
 @st.cache  # Adding caching here
+
 def download_stock_data(Stocks):
     try:
-        Portfolio = yf.download(Stocks, period='1y', interval='1h')
+        # Use pandas_datareader to fetch the data
+        Portfolio = pdr.get_data_yahoo(Stocks, period='1y', interval='1h')
         return Portfolio
     except Exception as e:
         st.error(f"Error downloading stock data: {e}")
