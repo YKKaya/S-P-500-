@@ -6,7 +6,7 @@ import io
 from datetime import datetime, timedelta
 
 # Function to fetch S&P 500 data
-@st.cache  # Adding caching here
+@st.cache
 def fetch_sp500_data(url):
     try:
         tickers = pd.read_html(url)[0]
@@ -16,7 +16,7 @@ def fetch_sp500_data(url):
         return None
 
 # Function to download stock data
-@st.cache  # Adding caching here
+@st.cache
 def download_stock_data(Stocks):
     try:
         Portfolio = yf.download(Stocks, period='1y', interval='1h')
@@ -35,14 +35,35 @@ def process_data(Portfolio):
         st.error(f"Error processing data: {e}")
         return None
 
+# Function to merge additional info
+def merge_additional_info(portfolio, tickers):
+    try:
+        company_info_columns = ['Symbol', 'Security', 'GICS Sector', 'GICS Sub-Industry', 'Headquarters Location', 'Date added']
+        if 'Founded' in tickers.columns:
+            company_info_columns.append('Founded')
+        company_info = tickers[company_info_columns]
+        company_info.columns = ['Symbol', 'Company_Name', 'Industry', 'Sub_Industry', 'Headquarters_Location', 'Date_Added'] + (['Founded'] if 'Founded' in tickers.columns else [])
+        portfolio = pd.merge(portfolio, company_info, on='Symbol', how='left')
+        return portfolio
+    except Exception as e:
+        return None
+
+# Function to download data as csv
+def download_link(object_to_download, download_filename, download_link_text):
+    if isinstance(object_to_download, pd.DataFrame):
+        object_to_download = object_to_download.to_csv(index=False)
+
+    b64 = base64.b64encode(object_to_download.encode()).decode()
+    download_link = f'<a href="data:file/txt;base64,{b64}" download="{download_filename}">{download_link_text}</a>'
+    return download_link
+
 # Function to get the last weekday
 def last_weekday():
     today = datetime.now()
     offset = 1
-    while (today - timedelta(days=offset)).weekday() > 4:  # 0=Monday, 1=Tuesday, ..., 4=Friday
+    while (today - timedelta(days=offset)).weekday() > 4:
         offset += 1
     last_working_day = today - timedelta(days=offset)
-    st.write(f"Last Working Day: {last_working_day}")  # Add this line for debugging
     return last_working_day
 
 st.title("S&P 500 Analysis")
@@ -57,24 +78,26 @@ tickers = fetch_sp500_data(url)
 Stocks = tickers.Symbol.to_list()
 Portfolio = download_stock_data(Stocks)
 portfolio = process_data(Portfolio)
+portfolio = merge_additional_info(portfolio, tickers)
 
 if portfolio is not None:
-    portfolio['Founded'] = portfolio['Founded'].str.replace(r'\(.*?\)', '', regex=True).str.strip()
+    if 'Founded' in portfolio.columns:
+        portfolio['Founded'] = portfolio['Founded'].str.replace(r'\(.*?\)', '', regex=True).str.strip()
     portfolio['Dollar_Return'] = portfolio['Return'] * portfolio['Adj Close']
 
     # Date range selection
     st.write("Select Date Range:")
     start_date = st.date_input(
         "Start Date",
-        value=last_weekday() - timedelta(days=30),  # Default value is 30 days ago
-        min_value=datetime.now() - timedelta(days=365),  # Min value is one year ago
-        max_value=last_weekday(),  # Max value is the last working day
+        value=last_weekday() - timedelta(days=30),
+        min_value=datetime.now() - timedelta(days=365),
+        max_value=last_weekday(),
     )
     end_date = st.date_input(
         "End Date",
-        value=last_weekday(),  # Default value is the last working day
-        min_value=datetime.now() - timedelta(days=365),  # Min value is one year ago
-        max_value=last_weekday(),  # Max value is the last working day
+        value=last_weekday(),
+        min_value=datetime.now() - timedelta(days=365),
+        max_value=last_weekday(),
     )
 
     filtered_portfolio = portfolio[(portfolio['Datetime'].dt.date >= start_date) & (portfolio['Datetime'].dt.date <= end_date)]
@@ -84,7 +107,7 @@ if portfolio is not None:
 
     # Filter the data for the selected symbols
     symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
-    
+
     if symbol_data is not None and not symbol_data.empty:
         if 'Datetime' in symbol_data.columns:
             symbol_data.set_index('Datetime', inplace=True)
