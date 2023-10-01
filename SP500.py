@@ -55,12 +55,20 @@ def download_link(object_to_download, download_filename, download_link_text):
     download_link = f'<a href="data:file/txt;base64,{b64}" download="{download_filename}">{download_link_text}</a>'
     return download_link
 
+# Function to get the last weekday
+def last_weekday():
+    today = datetime.now()
+    offset = 1
+    while (today - timedelta(days=offset)).weekday() > 4:  # 0=Monday, 1=Tuesday, ..., 4=Friday
+        offset += 1
+    last_working_day = today - timedelta(days=offset)
+    return last_working_day
+
 st.title("S&P 500 Analysis")
 st.write("""
 An interactive analysis of S&P 500 companies, allowing users to view and download historical stock data, returns, 
 additional company information. The dataset provides 1 year of historical data, recorded at hourly intervals. 
 """)
-
 
 url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
 
@@ -75,8 +83,7 @@ if portfolio is not None:
     portfolio['Dollar_Return'] = portfolio['Return'] * portfolio['Adj Close']
 
     # Date selection
-    yesterday = datetime.now() - timedelta(days=1)
-    selected_date = st.date_input("Select Date:", yesterday)
+    selected_date = st.date_input("Select Date:", last_weekday())
     filtered_portfolio = portfolio[portfolio['Datetime'].dt.date == selected_date]
 
     # Ticker selection
