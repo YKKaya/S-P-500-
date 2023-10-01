@@ -85,7 +85,7 @@ if portfolio is not None:
     # Date range selection
     start_date, end_date = st.date_input(
         "Select Date Range:",
-        value=(last_weekday() - timedelta(days=30), last_weekday()),  # Default value is last 30 days
+        value=(last_weekday() - timedelta(days=1), last_weekday()),  # Default value is last 30 days
         min_value=datetime.now() - timedelta(days=365),  # Min value is one year ago
         max_value=last_weekday(),  # Max value is the last working day
     )
