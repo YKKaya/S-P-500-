@@ -80,25 +80,31 @@ def display_time_series_chart(symbol_data, selected_symbols, start_date, end_dat
             selected_tickers = ', '.join(selected_symbols)  # Join selected tickers with commas
             
             # Create a Plotly line chart
-            fig = px.line(
-                filtered_data, x='Datetime', y='Close', color='Symbol',
-                title=f"Time Series Chart for {selected_tickers} Tickers"
-            )
+            fig = go.Figure()  # Create a new Plotly figure
             
             # Customize the chart with explicit light colors
             light_colors = ['#FF5733', '#FFBD33', '#33FF57', '#339CFF', '#FF33D1']  # Light colors
             color_mapping = {symbol: light_colors[i % len(light_colors)] for i, symbol in enumerate(selected_symbols)}
             
             for symbol in selected_symbols:
+                symbol_data = filtered_data[filtered_data['Symbol'] == symbol]
                 fig.add_trace(
                     go.Scatter(
-                        x=filtered_data[filtered_data['Symbol'] == symbol]['Datetime'],
-                        y=filtered_data[filtered_data['Symbol'] == symbol]['Close'],
+                        x=symbol_data['Datetime'],
+                        y=symbol_data['Close'],
                         mode='lines',
                         name=symbol,
-                        line=dict(color=color_mapping[symbol], width=2)
+                        line=dict(color=color_mapping[symbol], width=2),
+                        showlegend=True  # Show legend entry for this symbol
                     )
                 )
+            
+            # Set chart title
+            fig.update_layout(
+                title=f"Time Series Chart for {selected_tickers} Tickers",
+                xaxis_title="Date",
+                yaxis_title="Close Price"
+            )
             
             # Show the chart
             st.plotly_chart(fig)
