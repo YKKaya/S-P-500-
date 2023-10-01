@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import yfinance as yf
@@ -6,8 +5,22 @@ import base64
 import io
 from datetime import datetime, timedelta
 
-# Function to fetch S&P 500 data
-@st.cache  # Adding caching here
+
+def display_high_low_return_info(symbol_data, selected_symbols, start_date, end_date):
+    symbol_data['Hour'] = symbol_data.index.hour
+    symbol_data['Day'] = symbol_data.index.day_name()
+    min_return_row = symbol_data[symbol_data['Return'] == symbol_data['Return'].min()]
+    max_return_row = symbol_data[symbol_data['Return'] == symbol_data['Return'].max()]
+
+    min_return_hour = min_return_row['Hour'].iloc[0]
+    min_return_day = min_return_row['Day'].iloc[0]
+    max_return_hour = max_return_row['Hour'].iloc[0]
+    max_return_day = max_return_row['Day'].iloc[0]
+
+    st.write(f"{selected_symbols[0]} had its lowest trading price of its stock on {min_return_day}s {min_return_hour}:00 and highest trading price of its stock at {max_return_hour}:00 on {max_return_day}s for the selected dates of ({start_date} to {end_date})")
+
+
+@st.cache
 def fetch_sp500_data(url):
     try:
         tickers = pd.read_html(url)[0]
@@ -16,8 +29,8 @@ def fetch_sp500_data(url):
         st.error(f"Error fetching S&P 500 data: {e}")
         return None
 
-# Function to download stock data
-@st.cache  # Adding caching here
+
+@st.cache
 def download_stock_data(Stocks):
     try:
         Portfolio = yf.download(Stocks, period='1y', interval='1h')
@@ -26,7 +39,7 @@ def download_stock_data(Stocks):
         st.error(f"Error downloading stock data: {e}")
         return None
 
-# Function to process data
+
 def process_data(Portfolio):
     try:
         portfolio = Portfolio.stack().reset_index().rename(index=str, columns={"level_1": "Symbol", "level_0": "Datetime"})
@@ -36,7 +49,7 @@ def process_data(Portfolio):
         st.error(f"Error processing data: {e}")
         return None
 
-# Function to merge additional info
+
 def merge_additional_info(portfolio, tickers):
     try:
         company_info = tickers[['Symbol', 'Security', 'GICS Sector', 'GICS Sub-Industry', 'Headquarters Location', 'Date added', 'Founded']]
@@ -46,7 +59,7 @@ def merge_additional_info(portfolio, tickers):
     except Exception as e:
         return None
 
-# Function to download data as csv
+
 def download_link(object_to_download, download_filename, download_link_text):
     if isinstance(object_to_download, pd.DataFrame):
         object_to_download = object_to_download.to_csv(index=False)
@@ -55,14 +68,15 @@ def download_link(object_to_download, download_filename, download_link_text):
     download_link = f'<a href="data:file/txt;base64,{b64}" download="{download_filename}">{download_link_text}</a>'
     return download_link
 
-# Function to get the last weekday
+
 def last_weekday():
     today = datetime.now()
     offset = 1
-    while (today - timedelta(days=offset)).weekday() > 4:  # 0=Monday, 1=Tuesday, ..., 4=Friday
+    while (today - timedelta(days=offset)).weekday() > 4:
         offset += 1
     last_working_day = today - timedelta(days=offset)
     return last_working_day
+
 
 st.title("S&P 500 Analysis")
 st.write("""
@@ -82,34 +96,19 @@ if portfolio is not None:
     portfolio['Founded'] = portfolio['Founded'].str.replace(r'\(.*?\)', '', regex=True).str.strip()
     portfolio['Dollar_Return'] = portfolio['Return'] * portfolio['Adj Close']
 
-    # Date range selection
-    st.write("Select Date Range:")
-    start_date = st.date_input(
-        "Start Date",
-        value=last_weekday() - timedelta(days=30),  # Default value is 30 days ago
-        min_value=datetime.now() - timedelta(days=365),  # Min value is one year ago
-        max_value=last_weekday(),  # Max value is the last working day
-    )
-    end_date = st.date_input(
-        "End Date",
-        value=last_weekday(),  # Default value is the last working day
-        min_value=datetime.now() - timedelta(days=365),  # Min value is one year ago
-        max_value=last_weekday(),  # Max value is the last working day
-    )
+    start_date = st.date_input("Start Date", value=last_weekday() - timedelta(days=30), min_value=datetime.now() - timedelta(days=365), max_value=last_weekday())
+    end_date = st.date_input("End Date", value=last_weekday(), min_value=datetime.now() - timedelta(days=365), max_value=last_weekday())
 
     filtered_portfolio = portfolio[(portfolio['Datetime'].dt.date >= start_date) & (portfolio['Datetime'].dt.date <= end_date)]
 
-    # Ticker selection
-    # Ticker selection
     selected_symbols = st.multiselect("Tickers:", filtered_portfolio['Symbol'].unique(), default=['AAPL'])
 
-
-    # Filter the data for the selected symbols
     symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
-    
+
     if symbol_data is not None and not symbol_data.empty:
         if 'Datetime' in symbol_data.columns:
             symbol_data.set_index('Datetime', inplace=True)
+            display_high_low_return_info(symbol_data, selected_symbols, start_date, end_date)
             st.write("### Data Table:")
             st.dataframe(symbol_data)
 
