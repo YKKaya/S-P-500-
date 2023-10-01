@@ -36,29 +36,15 @@ def process_data(Portfolio):
         return None
 
 # Function to display high and low return text
-def display_high_low(symbol_data, selected_symbols, start_date, end_date):
-    try:
-        if symbol_data.empty or not selected_symbols:
-            st.error("No data available for the selected symbol and date range.")
-            return
-        highest_return_row = symbol_data[symbol_data['High'] == symbol_data['High'].max()]
-        lowest_return_row = symbol_data[symbol_data['Low'] == symbol_data['Low'].min()]
-        highest_return_time = highest_return_row.index[0]
-        lowest_return_time = lowest_return_row.index[0]
-        highest_return_day = highest_return_time.strftime("%A")
-        lowest_return_day = lowest_return_time.strftime("%A")
-        text = f"{', '.join(selected_symbols)} had its lowest trading price of its stock on {lowest_return_day} at {lowest_return_time.strftime('%H:%M')} and highest trading price of its stock at {highest_return_day} at {highest_return_time.strftime('%H:%M')} for the selected dates of {start_date} to {end_date}."
-        st.text(text)
-    except Exception as e:
-        st.error(f"An error occurred: {e}")
+def display_high_low(data, symbols, start_date, end_date):
+    for symbol in symbols:
+        symbol_data = data[data['Symbol'] == symbol]
+        min_return_row = symbol_data[symbol_data['Return'] == symbol_data['Return'].min()]
+        max_return_row = symbol_data[symbol_data['Return'] == symbol_data['Return'].max()]
+        st.write(f"{symbol} had its lowest trading price of its stock on {min_return_row['Datetime'].dt.strftime('%A %H:%M').values[0]} and highest trading price of its stock at {max_return_row['Datetime'].dt.strftime('%A %H:%M').values[0]} for the selected dates of {start_date} to {end_date}")
 
 # Main code
 st.title("S&P 500 Analysis")
-st.write("""
-An interactive analysis of S&P 500 companies, allowing users to view and download historical stock data, returns, 
-additional company information. The dataset provides 1 year of historical data, recorded at hourly intervals. 
-""")
-
 url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
 tickers = fetch_sp500_data(url)
 Stocks = tickers.Symbol.to_list()
@@ -71,6 +57,8 @@ if portfolio is not None:
     filtered_portfolio = portfolio[(portfolio['Datetime'].dt.date >= start_date) & (portfolio['Datetime'].dt.date <= end_date)]
     selected_symbols = st.multiselect("Tickers:", filtered_portfolio['Symbol'].unique(), default=['AAPL'])
     symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
+
+    # Call to the display_high_low function
     display_high_low(symbol_data, selected_symbols, start_date, end_date)
 
     if symbol_data is not None and not symbol_data.empty:
