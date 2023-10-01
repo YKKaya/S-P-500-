@@ -65,6 +65,15 @@ def last_weekday():
         offset += 1
     last_working_day = today - timedelta(days=offset)
     return last_working_day
+# Function to display highest and lowest return
+def display_high_low(symbol_data, selected_symbols, start_date, end_date):
+    for symbol in selected_symbols:
+        single_symbol_data = symbol_data[symbol_data['Symbol'] == symbol]
+        min_return_row = single_symbol_data[single_symbol_data['Return'] == single_symbol_data['Return'].min()]
+        max_return_row = single_symbol_data[single_symbol_data['Return'] == single_symbol_data['Return'].max()]
+        min_time = min_return_row.index[0].strftime("%A %H:%M") if not min_return_row.empty else "N/A"
+        max_time = max_return_row.index[0].strftime("%A %H:%M") if not max_return_row.empty else "N/A"
+        st.write(f"{symbol} had its lowest trading price of its stock on {min_time} and highest trading price of its stock at {max_time} for the selected dates of {start_date} to {end_date}")
 
 st.title("S&P 500 Analysis")
 st.write("""
@@ -129,3 +138,5 @@ if portfolio is not None:
             st.error("Datetime column not found in the data.")
     else:
         st.error("No data available for the selected symbol.")
+    # Call the function to display the text
+    display_high_low(symbol_data, selected_symbols, start_date, end_date)
