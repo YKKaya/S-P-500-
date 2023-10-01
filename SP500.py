@@ -56,12 +56,14 @@ def download_link(object_to_download, download_filename, download_link_text):
     download_link = f'<a href="data:file/txt;base64,{b64}" download="{download_filename}">{download_link_text}</a>'
     return download_link
 
+
 # Function to get the last weekday
 def last_weekday():
     today = datetime.now()
-    offset = max(1, (today.weekday() + 6) % 7 - 3)
-    timedelta_days = timedelta(days=offset)
-    last_working_day = today - timedelta_days
+    offset = 1
+    while (today - timedelta(days=offset)).weekday() > 4:  # 0=Monday, 1=Tuesday, ..., 4=Friday
+        offset += 1
+    last_working_day = today - timedelta(days=offset)
     return last_working_day
 
 st.title("S&P 500 Analysis")
