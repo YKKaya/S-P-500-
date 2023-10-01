@@ -35,6 +35,7 @@ def process_data(Portfolio):
 
 
 # Function to display high and low return text
+# Function to display high and low return text
 def display_high_low(symbol_data, selected_symbols, start_date, end_date):
     try:
         for symbol in selected_symbols:
@@ -46,11 +47,19 @@ def display_high_low(symbol_data, selected_symbols, start_date, end_date):
             min_return_row = single_symbol_data.loc[single_symbol_data['Low'].idxmin()]  # Get the row with the minimum 'Low' value
             max_return_row = single_symbol_data.loc[single_symbol_data['High'].idxmax()]  # Get the row with the maximum 'High' value
             
-            st.write("For the dates", str(start_date), "to", str(end_date), ",", str(symbol), "recorded its lowest trading price of $", f"{min_return_row['Low']:.2f}")
-            st.write("on", min_return_row['Datetime'].strftime('%A, %B %d at %H:%M'), "and its peak trading price of $", f"{max_return_row['High']:.2f}")
-            st.write("on", max_return_row['Datetime'].strftime('%A, %B %d at %H:%M') + ".")
+            text = f"""
+                <div>
+                    <p>For the dates <strong>{start_date}</strong> to <strong>{end_date}</strong>, <strong>{symbol}</strong> recorded its:</p>
+                    <ul>
+                        <li>Lowest trading price of <strong>${min_return_row['Low']:.2f}</strong> on <strong>{min_return_row['Datetime'].strftime('%A, %B %d at %H:%M')}</strong></li>
+                        <li>Peak trading price of <strong>${max_return_row['High']:.2f}</strong> on <strong>{max_return_row['Datetime'].strftime('%A, %B %d at %H:%M')}</strong></li>
+                    </ul>
+                </div>
+            """
+            st.markdown(text, unsafe_allow_html=True)
     except Exception as e:
         st.error(f"An error occurred: {e}")
+
 
 
 
