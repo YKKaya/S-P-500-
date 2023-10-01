@@ -1,8 +1,6 @@
 import streamlit as st
 import pandas as pd
 import yfinance as yf
-import base64
-import io
 from datetime import datetime, timedelta
 
 # Function to fetch S&P 500 data
@@ -36,7 +34,6 @@ def process_data(Portfolio):
         return None
 
 # Function to display high and low return text
-
 def display_high_low(symbol_data, selected_symbols, start_date, end_date):
     try:
         for symbol in selected_symbols:
@@ -47,19 +44,17 @@ def display_high_low(symbol_data, selected_symbols, start_date, end_date):
                 continue
             min_return_row = single_symbol_data.loc[single_symbol_data['Low'].idxmin()]  # Get the row with the minimum 'Low' value
             max_return_row = single_symbol_data.loc[single_symbol_data['High'].idxmax()]  # Get the row with the maximum 'High' value
-            text = f"For the dates **{start_date} to {end_date}**, **{symbol}** recorded its lowest trading price of **${min_return_row['Low']:.2f}** on **{min_return_row['Datetime'].strftime('%A, %B %d at %H:%M')}** and its peak trading price of **${max_return_row['High']:.2f}** on **{max_return_row['Datetime'].strftime('%A, %B %d at %H:%M')}**."
-            st.markdown(text)
+            
+            text = (
+                "For the dates " + str(start_date) + " to " + str(end_date) + ", " + str(symbol) +
+                " recorded its lowest trading price of $" + str(min_return_row['Low']) +
+                " on " + min_return_row['Datetime'].strftime('%A, %B %d at %H:%M') +
+                " and its peak trading price of $" + str(max_return_row['High']) +
+                " on " + max_return_row['Datetime'].strftime('%A, %B %d at %H:%M') + "."
+            )
+            st.write(text)
     except Exception as e:
         st.error(f"An error occurred: {e}")
-
-# Function to create download link
-def download_link(object_to_download, download_filename, download_link_text):
-    if isinstance(object_to_download, pd.DataFrame):
-        object_to_download = object_to_download.to_csv(index=False)
-
-    b64 = base64.b64encode(object_to_download.encode()).decode()
-    download_link = f'<a href="data:file/csv;base64,{b64}" download="{download_filename}">{download_link_text}</a>'
-    return download_link
 
 # Main part of the code
 st.title("S&P 500 Analysis")
@@ -84,7 +79,6 @@ if portfolio is not None:
     # Ticker selection
     default_ticker = ['AAPL']
     selected_symbols = st.multiselect("Tickers:", filtered_portfolio['Symbol'].unique(), default=default_ticker)
-
 
     # Filter the data for the selected symbols
     symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
