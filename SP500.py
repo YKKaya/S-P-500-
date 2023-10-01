@@ -94,7 +94,7 @@ def display_time_series_chart(symbol_data, selected_symbols, start_date, end_dat
                     fig.add_trace(
                         go.Scatter(
                             x=symbol_data['Datetime'],
-                            y=symbol_data['Close'],
+                            y=symbol_data['High'],
                             mode='lines',
                             name=symbol,
                             line=dict(color=color_mapping[symbol], width=2)
@@ -105,7 +105,7 @@ def display_time_series_chart(symbol_data, selected_symbols, start_date, end_dat
             fig.update_layout(
                 title=f"Time Series Chart for {selected_tickers} Tickers",
                 xaxis_title="Date",
-                yaxis_title="Close Price"
+                yaxis_title="Highest Price"
             )
             
             # Show the chart
