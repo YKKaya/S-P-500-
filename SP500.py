@@ -83,21 +83,17 @@ if portfolio is not None:
     portfolio['Dollar_Return'] = portfolio['Return'] * portfolio['Adj Close']
 
     # Date range selection
-    st.write("Select Date Range:")
-    start_date = st.date_input(
-        "Start Date",
-        value=last_weekday() - timedelta(days=30),  # Default value is 30 days ago
-        min_value=datetime.now() - timedelta(days=365),  # Min value is one year ago
-        max_value=last_weekday(),  # Max value is the last working day
-    )
-    end_date = st.date_input(
-        "End Date",
-        value=last_weekday(),  # Default value is the last working day
-        min_value=datetime.now() - timedelta(days=365),  # Min value is one year ago
-        max_value=last_weekday(),  # Max value is the last working day
-    )
+st.write("Select Date Range:")
+date_range = st.date_input(
+    "Date range",
+    value=(last_weekday() - timedelta(days=30), last_weekday()),  # Default value is from 30 days ago to the last working day
+    min_value=datetime.now() - timedelta(days=365),  # Min value is one year ago
+    max_value=last_weekday(),  # Max value is the last working day
+    type='date_range'
+)
 
-    filtered_portfolio = portfolio[(portfolio['Datetime'].dt.date >= start_date) & (portfolio['Datetime'].dt.date <= end_date)]
+start_date, end_date = date_range
+filtered_portfolio = portfolio[(portfolio['Datetime'].dt.date >= start_date) & (portfolio['Datetime'].dt.date <= end_date)]
 
     # Ticker selection
     selected_symbols = st.multiselect("Tickers:", filtered_portfolio['Symbol'].unique())
