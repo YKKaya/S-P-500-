@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import yfinance as yf
 from datetime import datetime, timedelta
+import plotly.express as px
 
 # Function to fetch S&P 500 data
 @st.cache
@@ -63,6 +64,7 @@ def display_high_low(symbol_data, selected_symbols, start_date, end_date):
     except Exception as e:
         st.error(f"An error occurred: {e}")
         
+# Function to display the time series chart for selected tickers using Plotly
 def display_time_series_chart(symbol_data, selected_symbols, start_date, end_date):
     try:
         filtered_data = symbol_data[
@@ -75,13 +77,18 @@ def display_time_series_chart(symbol_data, selected_symbols, start_date, end_dat
             st.error("No data available for the selected symbols in the selected date range.")
         else:
             selected_tickers = ', '.join(selected_symbols)  # Join selected tickers with commas
-            st.write(f"Time Series Chart for {selected_tickers} Tickers")
-            chart_data = filtered_data.pivot_table(index='Datetime', columns='Symbol', values='Close')
             
-            # Label the data series
-            chart_data.columns = [f"{symbol} Close" for symbol in chart_data.columns]
+            # Create a Plotly line chart
+            fig = px.line(filtered_data, x='Datetime', y='Close', color='Symbol', title=f"Time Series Chart for {selected_tickers} Tickers")
             
-            st.line_chart(chart_data, use_container_width=True)
+            # Customize the chart to show negative values in red
+            fig.update_traces(
+                line=dict(color='red', width=2),
+                selector=dict(type='scatter', mode='lines')
+            )
+            
+            # Show the chart
+            st.plotly_chart(fig)
     except Exception as e:
         st.error(f"An error occurred: {e}")
 
@@ -113,15 +120,16 @@ if portfolio is not None:
     # Filter the data for the selected symbols
     symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
 
-    # Call the display_high_low function here
-    display_high_low(symbol_data, selected_symbols, start_date, end_date)
-    
-    # Display the time series chart for selected tickers
+   # Display the time series chart for selected tickers
     if selected_symbols:  # Check if at least one ticker is selected
         display_time_series_chart(symbol_data, selected_symbols, start_date, end_date)
     else:
         st.warning("Please select at least one ticker for comparison.")
-    
+   
+    # Call the display_high_low function here
+    display_high_low(symbol_data, selected_symbols, start_date, end_date)
+  
+      
     # Now display the data table
     if 'Datetime' in symbol_data.columns:
         symbol_data.set_index('Datetime', inplace=True)
