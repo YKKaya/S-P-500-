@@ -100,10 +100,10 @@ if portfolio is not None:
     filtered_portfolio = portfolio[(portfolio['Datetime'].dt.date >= start_date) & (portfolio['Datetime'].dt.date <= end_date)]
 
     # Ticker selection
-    selected_symbol = st.selectbox("Ticker:", filtered_portfolio['Symbol'].unique())
+    selected_symbols = st.multiselect("Tickers:", filtered_portfolio['Symbol'].unique())
 
-    # Filter the data for the selected symbol
-    symbol_data = filtered_portfolio[filtered_portfolio['Symbol'] == selected_symbol]
+    # Filter the data for the selected symbols
+    symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
 
     if symbol_data is not None and not symbol_data.empty:
         if 'Datetime' in symbol_data.columns:
@@ -125,4 +125,4 @@ if portfolio is not None:
         else:
             st.error("Datetime column not found in the data.")
     else:
-        st.error("No data available for the selected symbol.")
+        st.error("No data available for the selected symbols.")
