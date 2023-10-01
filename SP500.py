@@ -47,7 +47,7 @@ def display_high_low(symbol_data, selected_symbols, start_date, end_date):
             
             text = (
                 "For the dates " + str(start_date) + " to " + str(end_date) + ", " + str(symbol) +
-                " recorded its lowest trading price of $" + str(min_return_row['Low']) +
+                " recorded it's lowest trading price of $" + str(min_return_row['Low']) +
                 " on " + min_return_row['Datetime'].strftime('%A, %B %d at %H:%M') +
                 " and its peak trading price of $" + str(max_return_row['High']) +
                 " on " + max_return_row['Datetime'].strftime('%A, %B %d at %H:%M') + "."
