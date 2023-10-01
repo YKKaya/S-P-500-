@@ -1,8 +1,7 @@
-streamlit==0.87.0
-pandas==1.1.5
-yfinance==0.1.63
-streamlit-datetimepicker==0.0.10
-matplotlib==3.4.3
-numpy==1.21.2
+streamlit
+pandas
+yfinance
+matplotlib
+numpy
 
 
