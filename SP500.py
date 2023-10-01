@@ -34,6 +34,7 @@ def process_data(Portfolio):
         return None
 
 # Function to display high and low return text
+# Function to display high and low return text
 def display_high_low(symbol_data, selected_symbols, start_date, end_date):
     try:
         for symbol in selected_symbols:
@@ -47,14 +48,15 @@ def display_high_low(symbol_data, selected_symbols, start_date, end_date):
             
             text = (
                 "For the dates " + str(start_date) + " to " + str(end_date) + ", " + str(symbol) +
-                " recorded its lowest trading price of $" + str(min_return_row['Low']) +
+                " recorded its lowest trading price of $" + f"{min_return_row['Low']:.2f}" +
                 " on " + min_return_row['Datetime'].strftime('%A, %B %d at %H:%M') +
-                " and its peak trading price of $" + str(max_return_row['High']) +
+                " and its peak trading price of $" + f"{max_return_row['High']:.2f}" +
                 " on " + max_return_row['Datetime'].strftime('%A, %B %d at %H:%M') + "."
             )
             st.write(text)
     except Exception as e:
         st.error(f"An error occurred: {e}")
+
 
 # Main part of the code
 st.title("S&P 500 Analysis")
