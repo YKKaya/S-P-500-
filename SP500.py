@@ -85,8 +85,10 @@ def display_time_series_chart(symbol_data, selected_symbols, start_date, end_dat
             )
             
             # Customize the chart
-            # Ensure that the first selected ticker is red, and others get different colors
-            color_mapping = {symbol: 'red' if symbol == selected_symbols[0] else f'rgba({i * 30}, {i * 40}, {i * 50}, 1)' for i, symbol in enumerate(selected_symbols)}
+            # Ensure that the first selected ticker is red (light color), and others get different light colors
+            light_colors = ['#FF5733', '#FFBD33', '#33FF57', '#339CFF', '#FF33D1']  # Light colors
+            color_mapping = {symbol: light_colors[i] if symbol == selected_symbols[0] else light_colors[i % len(light_colors)] for i, symbol in enumerate(selected_symbols)}
+            
             for symbol in selected_symbols:
                 fig.update_traces(
                     line=dict(color=color_mapping[symbol], width=2),
