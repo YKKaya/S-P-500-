@@ -74,9 +74,14 @@ def display_time_series_chart(symbol_data, selected_symbols, start_date, end_dat
         if filtered_data.empty:
             st.error("No data available for the selected symbols in the selected date range.")
         else:
-            st.write("Time Series Chart for Selected Tickers")
-            chart_data = filtered_data.set_index('Datetime')
-            st.line_chart(chart_data[['Close']])
+            selected_tickers = ', '.join(selected_symbols)  # Join selected tickers with commas
+            st.write(f"Time Series Chart for {selected_tickers} Tickers")
+            chart_data = filtered_data.pivot_table(index='Datetime', columns='Symbol', values='Close')
+            
+            # Label the data series
+            chart_data.columns = [f"{symbol} Close" for symbol in chart_data.columns]
+            
+            st.line_chart(chart_data, use_container_width=True)
     except Exception as e:
         st.error(f"An error occurred: {e}")
 
@@ -111,8 +116,11 @@ if portfolio is not None:
     # Call the display_high_low function here
     display_high_low(symbol_data, selected_symbols, start_date, end_date)
     
-    # Display the time series chart
-    display_time_series_chart(symbol_data, selected_symbols, start_date, end_date)
+    # Display the time series chart for selected tickers
+    if selected_symbols:  # Check if at least one ticker is selected
+        display_time_series_chart(symbol_data, selected_symbols, start_date, end_date)
+    else:
+        st.warning("Please select at least one ticker for comparison.")
     
     # Now display the data table
     if 'Datetime' in symbol_data.columns:
