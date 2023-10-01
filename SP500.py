@@ -84,45 +84,37 @@ if portfolio is not None:
 
     # Date range selection
     st.write("Select Date Range:")
-    start_date = st.date_input(
-        "Start Date",
-        value=last_weekday() - timedelta(days=30),  # Default value is 30 days ago
+    date_range = st.date_input(
+        "Date range",
+        value=(last_weekday() - timedelta(days=30), last_weekday()),  # Default value is from 30 days ago to the last working day
         min_value=datetime.now() - timedelta(days=365),  # Min value is one year ago
         max_value=last_weekday(),  # Max value is the last working day
-    )
-    end_date = st.date_input(
-        "End Date",
-        value=last_weekday(),  # Default value is the last working day
-        min_value=datetime.now() - timedelta(days=365),  # Min value is one year ago
-        max_value=last_weekday(),  # Max value is the last working day
+        type='date_range'
     )
 
+    start_date, end_date = date_range
     filtered_portfolio = portfolio[(portfolio['Datetime'].dt.date >= start_date) & (portfolio['Datetime'].dt.date <= end_date)]
 
     # Ticker selection
-    selected_symbol = st.selectbox("Ticker:", filtered_portfolio['Symbol'].unique())
+    selected_symbols = st.multiselect("Tickers:", filtered_portfolio['Symbol'].unique())
 
-    # Filter the data for the selected symbol
-    symbol_data = filtered_portfolio[filtered_portfolio['Symbol'] == selected_symbol]
+    # Filter the data for the selected symbols
+    symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
 
     if symbol_data is not None and not symbol_data.empty:
-        if 'Datetime' in symbol_data.columns:
-            symbol_data.set_index('Datetime', inplace=True)
-            st.write("### Data Table:")
-            st.dataframe(symbol_data)
+        # Ensure 'Datetime' is of datetime type
+        symbol_data['Datetime'] = pd.to_datetime(symbol_data['Datetime'])
+        st.write("### Data Table:")
+        st.dataframe(symbol_data)
 
-            if st.button("Download data as CSV"):
-                tmp_download_link = download_link(symbol_data, 'your_data.csv', 'Click here to download your data as CSV!')
-                st.markdown(tmp_download_link, unsafe_allow_html=True)
+        if st.button("Download data as CSV"):
+            tmp_download_link = download_link(symbol_data, 'your_data.csv', 'Click here to download your data as CSV!')
+            st.markdown(tmp_download_link, unsafe_allow_html=True)
 
-            if st.button("Download data as Excel"):
-                towrite = io.BytesIO()
-                downloaded_file = symbol_data.to_excel(towrite, index=False, sheet_name='Sheet1')
-                towrite.seek(0)
-                b64 = base64.b64encode(towrite.read()).decode()
-                tmp_download_link = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}" download="your_data.xlsx">Download excel file</a>'
-                st.markdown(tmp_download_link, unsafe_allow_html=True)
-        else:
-            st.error("Datetime column not found in the data.")
-    else:
-        st.error("No data available for the selected symbol.")
+        if st.button("Download data as Excel"):
+            towrite = io.BytesIO()
+            downloaded_file = symbol_data.to_excel(towrite, index=False, sheet_name='Sheet1')
+            towrite.seek(0)
+            b64 = base64.b64encode(towrite.read()).decode()
+            tmp_download_link = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}" download="your_data.xlsx">Download excel file</a>'
+            st.markdown(tmp_download_link, unsafe_allow_html=True)
