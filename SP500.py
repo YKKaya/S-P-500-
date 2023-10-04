@@ -27,13 +27,12 @@ def download_stock_data(Stocks):
         return None
 # Function to get ESG score
 @st.cache
-def get_esg_score(ticker):
+def get_full_esg_data(ticker):
     try:
-        esg = Esg(ticker)
-        score = esg.get_score()
-        return score
+        esg_data = get_esg_full(ticker)
+        return esg_data.to_string()
     except Exception as e:
-        st.error(f"Error fetching ESG score for {ticker}: {e}")
+        st.error(f"Error fetching full ESG data for {ticker}: {e}")
         return None
 
 # Function to process data
