@@ -4,6 +4,7 @@ import yfinance as yf
 from datetime import datetime, timedelta
 import plotly.express as px
 import plotly.graph_objects as go
+from yesg import Esg
 
 # Function to fetch S&P 500 data
 @st.cache
@@ -28,15 +29,13 @@ def download_stock_data(Stocks):
 @st.cache
 def get_esg_score(ticker):
     try:
-        stock = yf.Ticker(ticker)
-        esg_score = stock.sustainability
-        if esg_score is not None:
-            return esg_score.T
-        else:
-            return None
+        esg = Esg(ticker)
+        score = esg.get_score()
+        return score
     except Exception as e:
         st.error(f"Error fetching ESG score for {ticker}: {e}")
         return None
+
 # Function to process data
 def process_data(Portfolio):
     try:
@@ -151,14 +150,20 @@ if portfolio is not None:
     default_ticker = ['AAPL']
     selected_symbols = st.multiselect("Tickers:", filtered_portfolio['Symbol'].unique(), default=default_ticker)
     
+   
     # Fetch and display ESG score
-    for symbol in selected_symbols:
-        esg_score = get_esg_score(symbol)
-        if esg_score is not None:
-            st.write(f"### ESG Score for {symbol}:")
-            st.table(esg_score)
-        else:
-            st.write(f"No ESG score available for {symbol}.")
+    if selected_symbols:
+        for symbol in selected_symbols:
+            esg_score = get_esg_score(symbol)
+            if esg_score is not None:
+                st.write(f"### ESG Score for {symbol}:")
+                st.write(f"Total ESG Score: {esg_score['total']}")
+                st.write(f"Environment Score: {esg_score['environment']}")
+                st.write(f"Social Score: {esg_score['social']}")
+                st.write(f"Governance Score: {esg_score['governance']}")
+            else:
+                st.write(f"No ESG score available for {symbol}.")
+
 
     # Filter the data for the selected symbols
     symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
