@@ -25,15 +25,6 @@ def download_stock_data(Stocks):
     except Exception as e:
         st.error(f"Error downloading stock data: {e}")
         return None
-# Function to get ESG score
-@st.cache
-def get_full_esg_data(ticker):
-    try:
-        esg_data = get_esg_full(ticker)
-        return esg_data.to_string()
-    except Exception as e:
-        st.error(f"Error fetching full ESG data for {ticker}: {e}")
-        return None
 
 # Function to process data
 def process_data(Portfolio):
@@ -148,21 +139,7 @@ if portfolio is not None:
     # Ticker selection
     default_ticker = ['AAPL']
     selected_symbols = st.multiselect("Tickers:", filtered_portfolio['Symbol'].unique(), default=default_ticker)
-    
-   
-   
-    # Fetch and display full ESG data
-    if selected_symbols:
-        for symbol in selected_symbols:
-            esg_data_string = get_full_esg_data(symbol)
-            if esg_data_string:
-                st.write(f"### Full ESG Data for {symbol}:")
-                st.text(esg_data_string)
-            else:
-                st.write(f"No ESG data available for {symbol}.")
-
-
-
+  
     # Filter the data for the selected symbols
     symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
 
