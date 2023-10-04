@@ -44,7 +44,19 @@ def merge_additional_info(portfolio, tickers):
         return portfolio
     except Exception as e:
         return None
-        
+
+
+# Function to get ESG score 
+def get_esg_score(ticker):
+    try:
+        stock = yf.Ticker(ticker)
+        esg_score = stock.sustainability
+        return esg_score
+    except Exception as e:
+        print(f"Error fetching ESG score for {ticker}: {e}")
+        return None
+
+
 # Function to display high and low return text
 def display_high_low(symbol_data, selected_symbols, start_date, end_date):
     try:
@@ -149,7 +161,16 @@ if portfolio is not None:
    
     # Call the display_high_low function here
     display_high_low(symbol_data, selected_symbols, start_date, end_date)
-  
+ 
+# Fetch and display ESG score
+    if selected_symbols:
+        for symbol in selected_symbols:
+            esg_score = get_esg_score(symbol)
+            if esg_score is not None and not esg_score.empty:
+            st.write(f"### ESG Score for {symbol}:")
+            st.dataframe(esg_score)
+            else:
+            st.write(f"No ESG score available for {symbol}.")
       
     # Now display the data table
     if 'Datetime' in symbol_data.columns:
