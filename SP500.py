@@ -150,18 +150,17 @@ if portfolio is not None:
     selected_symbols = st.multiselect("Tickers:", filtered_portfolio['Symbol'].unique(), default=default_ticker)
     
    
-    # Fetch and display ESG score
+   
+    # Fetch and display full ESG data
     if selected_symbols:
         for symbol in selected_symbols:
-            esg_score = get_esg_score(symbol)
-            if esg_score is not None:
-                st.write(f"### ESG Score for {symbol}:")
-                st.write(f"Total ESG Score: {esg_score['total']}")
-                st.write(f"Environment Score: {esg_score['environment']}")
-                st.write(f"Social Score: {esg_score['social']}")
-                st.write(f"Governance Score: {esg_score['governance']}")
+            esg_data_string = get_full_esg_data(symbol)
+            if esg_data_string:
+                st.write(f"### Full ESG Data for {symbol}:")
+                st.text(esg_data_string)
             else:
-                st.write(f"No ESG score available for {symbol}.")
+                st.write(f"No ESG data available for {symbol}.")
+
 
 
     # Filter the data for the selected symbols
