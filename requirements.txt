@@ -4,4 +4,4 @@ matplotlib==3.4.3
 numpy==1.21.2
 streamlit ==1.27.1
 plotly==5.3.1
-yesg==0.0.5
+yesg==2.1.1
