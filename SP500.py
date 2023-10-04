@@ -24,7 +24,19 @@ def download_stock_data(Stocks):
     except Exception as e:
         st.error(f"Error downloading stock data: {e}")
         return None
-
+# Function to get ESG score
+@st.cache
+def get_esg_score(ticker):
+    try:
+        stock = yf.Ticker(ticker)
+        esg_score = stock.sustainability
+        if esg_score is not None:
+            return esg_score.T
+        else:
+            return None
+    except Exception as e:
+        st.error(f"Error fetching ESG score for {ticker}: {e}")
+        return None
 # Function to process data
 def process_data(Portfolio):
     try:
@@ -43,17 +55,6 @@ def merge_additional_info(portfolio, tickers):
         portfolio = pd.merge(portfolio, company_info, on='Symbol', how='left')
         return portfolio
     except Exception as e:
-        return None
-
-
-# Function to get ESG score 
-def get_esg_score(ticker):
-    try:
-        stock = yf.Ticker(ticker)
-        esg_score = stock.sustainability
-        return esg_score
-    except Exception as e:
-        print(f"Error fetching ESG score for {ticker}: {e}")
         return None
 
 
@@ -149,6 +150,15 @@ if portfolio is not None:
     # Ticker selection
     default_ticker = ['AAPL']
     selected_symbols = st.multiselect("Tickers:", filtered_portfolio['Symbol'].unique(), default=default_ticker)
+    
+    # Fetch and display ESG score
+    for symbol in selected_symbols:
+        esg_score = get_esg_score(symbol)
+        if esg_score is not None:
+            st.write(f"### ESG Score for {symbol}:")
+            st.table(esg_score)
+        else:
+            st.write(f"No ESG score available for {symbol}.")
 
     # Filter the data for the selected symbols
     symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
@@ -161,16 +171,6 @@ if portfolio is not None:
    
     # Call the display_high_low function here
     display_high_low(symbol_data, selected_symbols, start_date, end_date)
- 
-# Fetch and display ESG score
-    if selected_symbols:
-        for symbol in selected_symbols:
-            esg_score = get_esg_score(symbol)
-            if esg_score is not None and not esg_score.empty:
-            st.write(f"### ESG Score for {symbol}:")
-            st.dataframe(esg_score)
-            else:
-            st.write(f"No ESG score available for {symbol}.")
       
     # Now display the data table
     if 'Datetime' in symbol_data.columns:
