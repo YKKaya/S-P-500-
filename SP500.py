@@ -269,22 +269,7 @@ if portfolio is not None:
 
    
     # ESG Data Retrieval and Display
-    for symbol in selected_symbols:
-        esg_data = get_esg_data_with_headers_and_error_handling(symbol)
-        if esg_data:
-            total_esg_score = esg_data.get("Total ESG risk score", None)
-            risk_level = map_esg_risk_to_level(total_esg_score) if total_esg_score is not None else "N/A"
-            
-            st.write(f"### ESG Data for {symbol}:")
-            st.markdown(f"""
-            - **Total ESG risk score:** {total_esg_score} ({risk_level})
-            - **Environment risk score:** {esg_data.get("Environment risk score", "N/A")}
-            - **Social risk score:** {esg_data.get("Social risk score", "N/A")}
-            - **Governance risk score:** {esg_data.get("Governance risk score", "N/A")}
-            - **Controversy level:** {esg_data.get("Controversy level", "N/A")}
-            """)
 
-            # ESG Data Retrieval and Display
             esg_data_list = []
             esg_scores = []
 
