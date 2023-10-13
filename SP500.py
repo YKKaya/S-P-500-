@@ -215,6 +215,30 @@ def display_time_series_chart(symbol_data, selected_symbols, start_date, end_dat
                             line=dict(color=color_mapping[symbol], width=2)
                         )
                     )
+                
+                # Add annotations for highest and lowest trading prices
+                min_return_row = symbol_data.loc[symbol_data['Low'].idxmin()]  # Get the row with the minimum 'Low' value
+                max_return_row = symbol_data.loc[symbol_data['High'].idxmax()]  # Get the row with the maximum 'High' value
+                
+                fig.add_annotation(
+                    x=min_return_row['Datetime'],
+                    y=min_return_row['Low'],
+                    text=f"Lowest: ${min_return_row['Low']:.2f}",
+                    showarrow=True,
+                    arrowhead=4,
+                    ax=0,
+                    ay=-40
+                )
+                
+                fig.add_annotation(
+                    x=max_return_row['Datetime'],
+                    y=max_return_row['High'],
+                    text=f"Highest: ${max_return_row['High']:.2f}",
+                    showarrow=True,
+                    arrowhead=4,
+                    ax=0,
+                    ay=40
+                )
             
             # Set chart title
             fig.update_layout(
