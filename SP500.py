@@ -234,7 +234,7 @@ def display_time_series_chart(symbol_data, selected_symbols, start_date, end_dat
                     x=max_return_row['Datetime'],
                     y=max_return_row['High'],
                     text=f"Highest: ${max_return_row['High']:.2f}",
-                    showarrow=True,
+                    showarrow=False,
                     arrowhead=4,
                     ax=0,
                     ay=40
