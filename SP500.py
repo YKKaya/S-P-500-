@@ -125,10 +125,10 @@ def display_risk_levels(ticker, ticker_esg_score):
     
     # Add a text annotation to display the ticker's ESG score
     fig.add_annotation(
-        x=2,  # Adjusted position to the right
-        y=score_position,
-        xref="x",
-        yref="y",
+        x=1.1,  # Adjusted position to the right outside of the figure
+        y=score_position/4.5,  # Adjusted y position relative to the height of the figure
+        xref="paper",
+        yref="paper",
         text=f"{ticker}'s Score: {ticker_esg_score}",
         showarrow=False,
         font=dict(color='white', size=12)
@@ -143,6 +143,7 @@ def display_risk_levels(ticker, ticker_esg_score):
     )
     
     st.plotly_chart(fig)
+
 
 # Function to merge additional info
 def merge_additional_info(portfolio, tickers):
