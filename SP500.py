@@ -101,16 +101,16 @@ def display_risk_levels():
     st.write("### ESG Risk Levels:")
     
     risk_levels = ["Very Low", "Low", "Medium", "High", "Severe"]
-    colors = ["green", "#ADFF2F", "orange", "#FF4500", "red"]  # Color gradient from green to red
+    colors = ["green", "#ADFF2F", "yellow", "orange", "red"]
     
-    # Create a DataFrame for the risk levels
-    df_risk = pd.DataFrame(risk_levels, columns=["Risk Level"])
-    
-    # Plotting
     fig, ax = plt.subplots(figsize=(5, 7))
     ax.axis('tight')
     ax.axis('off')
-    ax.table(cellText=df_risk.values, colLabels=df_risk.columns, cellColours=[[color] for color in colors], cellLoc = 'center', loc='center')
+    ax.table(cellText=[[level] for level in risk_levels],
+             colLabels=["Risk Level"],
+             cellColours=[[color] for color in colors],
+             cellLoc = 'center', 
+             loc='center')
     
     st.pyplot(fig)
 
