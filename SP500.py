@@ -98,8 +98,20 @@ def process_data(Portfolio):
 # Display the risk levels in a static table
 def display_risk_levels():
     st.write("### ESG Risk Levels:")
+    
     risk_levels = ["Very Low", "Low", "Medium", "High", "Severe"]
-    st.table(pd.DataFrame(risk_levels, columns=["Risk Level"]))
+    colors = ["green", "#ADFF2F", "orange", "#FF4500", "red"]  # Color gradient from green to red
+    
+    # Create a DataFrame for the risk levels
+    df_risk = pd.DataFrame(risk_levels, columns=["Risk Level"])
+    
+    # Plotting
+    fig, ax = plt.subplots(figsize=(5, 7))
+    ax.axis('tight')
+    ax.axis('off')
+    ax.table(cellText=df_risk.values, colLabels=df_risk.columns, cellColours=[[color] for color in colors], cellLoc = 'center', loc='center')
+    
+    st.pyplot(fig)
 
 # Function to merge additional info
 def merge_additional_info(portfolio, tickers):
@@ -234,12 +246,14 @@ if portfolio is not None:
             - **Controversy level:** {esg_data.get("Controversy level", "N/A")}
             """)
 
+            # Display the risk levels table
+            display_risk_levels()
+            
             st.write("This data is sourced from Yahoo Finance and risk ratings are conducted by Sustainalytics.")
             st.markdown("[More information on Sustainalytics ESG Data](https://www.sustainalytics.com/esg-data)")
             st.video("https://www.youtube.com/embed/bJgMM31wiRs?autoplay=1")
             
-            # Display the risk levels table
-            display_risk_levels()
+         
         else:
             st.write(f"No ESG data available for {symbol}.")
       
