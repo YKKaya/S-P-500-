@@ -143,7 +143,6 @@ def display_risk_levels(ticker, ticker_esg_score):
     
     st.plotly_chart(fig)
 
-
 # Function to merge additional info
 def merge_additional_info(portfolio, tickers):
     try:
