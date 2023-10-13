@@ -286,11 +286,11 @@ if portfolio is not None:
     if esg_scores:
         display_risk_levels(selected_symbols, esg_scores)
             
-    st.write("This data is sourced from Yahoo Finance and risk ratings are conducted by Sustainalytics.")
-    st.markdown("[More information on Sustainalytics ESG Data](https://www.sustainalytics.com/esg-data)")
+        st.write("This data is sourced from Yahoo Finance and risk ratings are conducted by Sustainalytics.")
+        st.markdown("[More information on Sustainalytics ESG Data](https://www.sustainalytics.com/esg-data)")
                       
-        else:
-            st.write(f"No ESG data available for {symbol}.")
+    else:
+        st.write(f"No ESG data available for {symbol}.")
       
     # Now display the data table
     if 'Datetime' in symbol_data.columns:
