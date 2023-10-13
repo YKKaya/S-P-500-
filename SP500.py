@@ -97,6 +97,14 @@ def process_data(Portfolio):
         st.error(f"Error processing data: {e}")
         return None
         
+# Function to display consolidated ESG data in a table format
+def display_esg_data_table(selected_symbols, esg_data_list):
+    # Convert the list of dictionaries to a DataFrame
+    esg_df = pd.DataFrame(esg_data_list)
+    esg_df.insert(0, 'Ticker', selected_symbols)  # Add a column for tickers at the beginning
+    st.write("### ESG Data Table:")
+    st.table(esg_df)
+        
 # Function to display ESG risk levels
 def display_risk_levels(tickers, esg_scores):
     st.write("### ESG Risk Levels:")
