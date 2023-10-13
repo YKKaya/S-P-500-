@@ -101,24 +101,24 @@ def display_risk_levels(ticker_esg_score):
     st.write("### ESG Risk Levels:")
     
     risk_levels = ["Very Low", "Low", "Medium", "High", "Severe"]
-    colors = ["#FFEDCC", "#FFDB99", "#FFC266", "#FF9900", "#FF6600"]  # Shades of orange from light to dark
+    colors = ["#1E442A", "#3C5A2E", "#5E7233", "#7F8937", "#A0A13B"]  # Shades of green to yellow for a dark theme
     
     # Determine the position of the ticker's ESG score on the scale
     score_position = risk_levels.index(map_esg_risk_to_level(ticker_esg_score))
     
     # Highlight the cell corresponding to the ticker's ESG score
-    cell_colors = [['#F5F5F5'] * 5 for _ in range(5)]
+    cell_colors = [['#333333'] * 5 for _ in range(5)]  # Dark gray for a dark theme
     cell_colors[score_position][0] = colors[score_position]
     
     fig = go.Figure(data=[go.Table(
         header=dict(values=["Risk Level", "Score Range"],
-                    fill_color='paleturquoise',
+                    fill_color='#444444',  # Slightly lighter gray for headers in a dark theme
                     align='center',
-                    font=dict(color='black', size=14)),
+                    font=dict(color='white', size=14)),
         cells=dict(values=[risk_levels, ["0-10", "10-20", "20-30", "30-40", "40+"]],
                    fill_color=cell_colors,
                    align='center',
-                   font=dict(color='black', size=12))
+                   font=dict(color='white', size=12))
     )])
     
     # Add a text annotation to display the ticker's ESG score
@@ -131,10 +131,18 @@ def display_risk_levels(ticker_esg_score):
         showarrow=True,
         arrowhead=4,
         ax=0,
-        ay=-40
+        ay=-40,
+        font=dict(color='white')
     )
     
-    fig.update_layout(width=500, height=250)
+    fig.update_layout(
+        width=500, 
+        height=250,
+        plot_bgcolor='#000000',  # Black background
+        paper_bgcolor='#000000',  # Black paper background
+        xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+        yaxis=dict(showgrid=False, zeroline=False, showticklabels=False)
+    )
     
     st.plotly_chart(fig)
 
