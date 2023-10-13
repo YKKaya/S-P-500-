@@ -184,16 +184,7 @@ if portfolio is not None:
     default_ticker = ['AAPL']
     selected_symbols = st.multiselect("Tickers:", filtered_portfolio['Symbol'].unique(), default=default_ticker)
     
-    # Retrieve ESG Data based on selected tickers
-    st.write("### Retrieve ESG Data")
-    for symbol in selected_symbols:
-        esg_data = get_esg_data_with_headers_and_error_handling(symbol)
-        if esg_data:
-            st.write(f"**ESG Data for {symbol}:**")
-            st.write(esg_data)
-        else:
-            st.write(f"No ESG data available for {symbol}.")
-            
+                
     # Filter the data for the selected symbols
     symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
 
@@ -205,7 +196,15 @@ if portfolio is not None:
    
     # Call the display_high_low function here
     display_high_low(symbol_data, selected_symbols, start_date, end_date)
-  
+    # Retrieve ESG Data based on selected tickers
+    st.write("### Retrieve ESG Data")
+    for symbol in selected_symbols:
+        esg_data = get_esg_data_with_headers_and_error_handling(symbol)
+        if esg_data:
+            st.write(f"**ESG Data for {symbol}:**")
+            st.write(esg_data)
+        else:
+            st.write(f"No ESG data available for {symbol}.")  
       
     # Now display the data table
     if 'Datetime' in symbol_data.columns:
