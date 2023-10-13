@@ -88,6 +88,16 @@ def map_esg_risk_to_level(score):
         return "Severe"
         
 # Function to process data
+def process_data(Portfolio):
+    try:
+        portfolio = Portfolio.stack().reset_index().rename(index=str, columns={"level_1": "Symbol", "level_0": "Datetime"})
+        portfolio['Return'] = (portfolio['Close'] - portfolio['Open']) / portfolio['Open']
+        return portfolio
+    except Exception as e:
+        st.error(f"Error processing data: {e}")
+        return None
+        
+# Function to display ESG risk levels
 def display_risk_levels(tickers, esg_scores):
     st.write("### ESG Risk Levels:")
     
