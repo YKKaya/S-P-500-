@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import requests
 from bs4 import BeautifulSoup
 import plotly.graph_objects as go
+import matplotlib.pyplot as plt
 
 # Function to fetch S&P 500 data
 @st.cache
