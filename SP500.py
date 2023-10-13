@@ -101,44 +101,45 @@ def display_risk_levels(ticker, ticker_esg_score):
     st.write("### ESG Risk Levels:")
     
     risk_levels = ["Very Low", "Low", "Medium", "High", "Severe"]
-    colors = ["#1E442A", "#3C5A2E", "#5E7233", "#7F8937", "#A0A13B"]  # Shades of green to yellow for a dark theme
+    colors = ["#FFEDCC", "#FFDB99", "#FFC266", "#FF9900", "#FF6600"]  # Shades of orange from light to dark
     
     # Determine the position of the ticker's ESG score on the scale
     score_position = risk_levels.index(map_esg_risk_to_level(ticker_esg_score))
     
     # Highlight the cell corresponding to the ticker's ESG score
-    cell_colors = [['#333333'] * 5 for _ in range(5)]  # Dark gray for a dark theme
+    cell_colors = [['#2e2e2e'] * 5 for _ in range(5)]
     cell_colors[score_position][0] = colors[score_position]
     
     fig = go.Figure(data=[go.Table(
         header=dict(values=["Risk Level", "Score Range"],
-                    fill_color='#444444',  # Slightly lighter gray for headers in a dark theme
+                    fill_color='#2e2e2e',
+                    line_color='#2e2e2e',
                     align='center',
                     font=dict(color='white', size=14)),
         cells=dict(values=[risk_levels, ["0-10", "10-20", "20-30", "30-40", "40+"]],
                    fill_color=cell_colors,
+                   line_color='#2e2e2e',
                    align='center',
                    font=dict(color='white', size=12))
     )])
     
     # Add a text annotation to display the ticker's ESG score
     fig.add_annotation(
-        x=2,  # Adjusted x position to move the annotation to the right
+        x=2,  # Adjusted position to the right
         y=score_position,
         xref="x",
         yref="y",
         text=f"{ticker}'s Score: {ticker_esg_score}",
-        showarrow=False,  # Removed the arrow
+        showarrow=False,
         font=dict(color='white', size=12)
     )
     
     fig.update_layout(
-        width=600, 
-        height=400,
-        plot_bgcolor='rgba(0,0,0,0)',  # Transparent background
-        paper_bgcolor='rgba(0,0,0,0)',  # Transparent paper background
-        xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-        yaxis=dict(showgrid=False, zeroline=False, showticklabels=False)
+        width=600,
+        height=300,
+        paper_bgcolor='#2e2e2e',
+        plot_bgcolor='#2e2e2e',
+        margin=dict(l=0, r=0, b=0, t=0)
     )
     
     st.plotly_chart(fig)
