@@ -88,25 +88,12 @@ def map_esg_risk_to_level(score):
         return "Severe"
         
 # Function to process data
-def process_data(Portfolio):
-    try:
-        portfolio = Portfolio.stack().reset_index().rename(index=str, columns={"level_1": "Symbol", "level_0": "Datetime"})
-        portfolio['Return'] = (portfolio['Close'] - portfolio['Open']) / portfolio['Open']
-        return portfolio
-    except Exception as e:
-        st.error(f"Error processing data: {e}")
-        return None
-        
-# Display the risk levels in a static table
-def display_risk_levels(ticker, ticker_esg_score):
+def display_risk_levels(tickers, esg_scores):
     st.write("### ESG Risk Levels:")
     
     risk_levels = ["Very Low", "Low", "Medium", "High", "Severe"]
     score_ranges = [5, 15, 25, 35, 45]  # Midpoint of each score range for plotting
     colors = ["#FFEDCC", "#FFDB99", "#FFC266", "#FF9900", "#FF6600"]  # Shades of orange from light to dark
-    
-    # Determine the position of the ticker's ESG score on the scale
-    score_position = risk_levels.index(map_esg_risk_to_level(ticker_esg_score))
     
     # Create a DataFrame for plotting
     df = pd.DataFrame({
@@ -119,26 +106,22 @@ def display_risk_levels(ticker, ticker_esg_score):
     fig = px.bar(df, x='Score Range', y='Risk Level', color='Color', orientation='h',
                  color_discrete_map=dict(zip(df['Color'], df['Color'])))
     
-    # Highlight the bar corresponding to the ticker's risk level
-    fig.data[score_position].marker.line.width = 3
-    fig.data[score_position].marker.line.color = "white"
-    
-    # Adjust the position of the annotation to be inside the bar
-    annotation_x = df.loc[score_position, 'Score Range'] - 3  # Adjusted for visibility
-    
-    # Annotate the chart with the selected ticker's score
-    fig.add_annotation(
-        x=annotation_x,
-        y=risk_levels[score_position],
-        text=f"{ticker}: {ticker_esg_score}",
-        showarrow=False,
-        font=dict(color='black', size=12),
-        xshift=10
-    )
+    # Annotate the chart with the scores of all selected tickers
+    for ticker, score in zip(tickers, esg_scores):
+        score_position = risk_levels.index(map_esg_risk_to_level(score))
+        annotation_x = df.loc[score_position, 'Score Range'] - 3  # Adjusted for visibility
+        fig.add_annotation(
+            x=annotation_x,
+            y=risk_levels[score_position],
+            text=f"{ticker}: {score}",
+            showarrow=False,
+            font=dict(color='black', size=12),
+            xshift=10
+        )
     
     # Update chart aesthetics
     fig.update_layout(
-        title=f"ESG Risk Levels and {ticker}'s Score",
+        title="ESG Risk Levels and Ticker Scores",
         xaxis_title="Score Range",
         yaxis_title="Risk Level",
         showlegend=False,
@@ -283,16 +266,27 @@ if portfolio is not None:
             - **Controversy level:** {esg_data.get("Controversy level", "N/A")}
             """)
 
-            # Display the risk levels table
-            if total_esg_score:
-                display_risk_levels(symbol, total_esg_score)
-            else:
-                st.error("Unable to fetch ESG score for the selected ticker.")
+            # ESG Data Retrieval and Display
+            esg_data_list = []
+            esg_scores = []
+
+            for symbol in selected_symbols:
+                esg_data = get_esg_data_with_headers_and_error_handling(symbol)
+                if esg_data:
+                    esg_data_list.append(esg_data)
+                    esg_scores.append(esg_data.get("Total ESG risk score", None))
+
+            # Display consolidated ESG data table
+            if esg_data_list:
+                display_esg_data_table(selected_symbols, esg_data_list)
+
+            # Display ESG risk levels visualization for all selected tickers
+            if esg_scores:
+                display_risk_levels(selected_symbols, esg_scores)
             
             st.write("This data is sourced from Yahoo Finance and risk ratings are conducted by Sustainalytics.")
             st.markdown("[More information on Sustainalytics ESG Data](https://www.sustainalytics.com/esg-data)")
-            st.video("https://www.youtube.com/embed/bJgMM31wiRs?autoplay=1")
-            
+                      
         else:
             st.write(f"No ESG data available for {symbol}.")
       
