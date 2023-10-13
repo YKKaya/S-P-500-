@@ -224,7 +224,7 @@ def display_time_series_chart(symbol_data, selected_symbols, start_date, end_dat
                     x=min_return_row['Datetime'],
                     y=min_return_row['Low'],
                     text=f"Lowest: ${min_return_row['Low']:.2f}",
-                    showarrow=True,
+                    showarrow=False,
                     arrowhead=4,
                     ax=0,
                     ay=-40
