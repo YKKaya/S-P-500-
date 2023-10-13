@@ -272,16 +272,15 @@ if portfolio is not None:
             """)
 
             # Display the risk levels table
-            if ticker_esg_score:
-                display_risk_levels(ticker_esg_score)
+            if total_esg_score:
+                display_risk_levels(total_esg_score)
             else:
                 st.error("Unable to fetch ESG score for the selected ticker.")
-                
+            
             st.write("This data is sourced from Yahoo Finance and risk ratings are conducted by Sustainalytics.")
             st.markdown("[More information on Sustainalytics ESG Data](https://www.sustainalytics.com/esg-data)")
             st.video("https://www.youtube.com/embed/bJgMM31wiRs?autoplay=1")
             
-         
         else:
             st.write(f"No ESG data available for {symbol}.")
       
