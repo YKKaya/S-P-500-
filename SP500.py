@@ -28,6 +28,9 @@ def download_stock_data(Stocks):
 # Function to extract esg data        
 @st.cache
 def get_esg_data_with_headers_and_error_handling(ticker):
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    }
     url = f"https://uk.finance.yahoo.com/quote/{ticker}/sustainability?p={ticker}"
     response = requests.get(url, headers=headers)
 
