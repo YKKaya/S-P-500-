@@ -162,24 +162,24 @@ def merge_additional_info(portfolio, tickers):
         return None
         
 # Function to display high and low return text
-def display_high_low(symbol_data, selected_symbols, start_date, end_date):
-    try:
-        for symbol in selected_symbols:
-            single_symbol_data = symbol_data[symbol_data['Symbol'] == symbol]
-            single_symbol_data['Datetime'] = pd.to_datetime(single_symbol_data['Datetime'])  # Ensure Datetime is in datetime format
-            if single_symbol_data.empty:
-                st.error(f"No data available for {symbol} in the selected date range.")
-                continue
-            min_return_row = single_symbol_data.loc[single_symbol_data['Low'].idxmin()]  # Get the row with the minimum 'Low' value
-            max_return_row = single_symbol_data.loc[single_symbol_data['High'].idxmax()]  # Get the row with the maximum 'High' value
+#def display_high_low(symbol_data, selected_symbols, start_date, end_date):
+    #try:
+       # for symbol in selected_symbols:
+          #  single_symbol_data = symbol_data[symbol_data['Symbol'] == symbol]
+          #  single_symbol_data['Datetime'] = pd.to_datetime(single_symbol_data['Datetime'])  # Ensure Datetime is in datetime format
+         #   if single_symbol_data.empty:
+          #      st.error(f"No data available for {symbol} in the selected date range.")
+             #   continue
+         #   min_return_row = single_symbol_data.loc[single_symbol_data['Low'].idxmin()]  # Get the row with the minimum 'Low' value
+           # max_return_row = single_symbol_data.loc[single_symbol_data['High'].idxmax()]  # Get the row with the maximum 'High' value
             
-            company_name = single_symbol_data['Company_Name'].values[0]  # Get the Company_Name from the dataset
+          #  company_name = single_symbol_data['Company_Name'].values[0]  # Get the Company_Name from the dataset
             
-            st.write(f"For the dates {start_date} to {end_date}, {company_name} recorded its:") 
-            st.write(f"Lowest trading price: ${min_return_row['Low']:.2f} on {min_return_row['Datetime'].strftime('%A, %B %d at %H:%M')}")
-            st.write(f"Highest trading price: ${max_return_row['High']:.2f} on {max_return_row['Datetime'].strftime('%A, %B %d at %H:%M')}")
-    except Exception as e:
-        st.error(f"An error occurred: {e}")
+           # st.write(f"For the dates {start_date} to {end_date}, {company_name} recorded its:") 
+           # st.write(f"Lowest trading price: ${min_return_row['Low']:.2f} on {min_return_row['Datetime'].strftime('%A, %B %d at %H:%M')}")
+          #  st.write(f"Highest trading price: ${max_return_row['High']:.2f} on {max_return_row['Datetime'].strftime('%A, %B %d at %H:%M')}")
+    #except Exception as e:
+       # st.error(f"An error occurred: {e}")
 
 # Function to display the time series chart for selected tickers using Plotly
 def display_time_series_chart(symbol_data, selected_symbols, start_date, end_date):
@@ -288,10 +288,10 @@ if portfolio is not None:
         st.warning("Please select at least one ticker for comparison.")
    
     # Call the display_high_low function here
-    display_high_low(symbol_data, selected_symbols, start_date, end_date)
+
+    # display_high_low(symbol_data, selected_symbols, start_date, end_date)
     
 
-   
    # ESG Data Retrieval and Display
     esg_data_list = []
     esg_scores = []
