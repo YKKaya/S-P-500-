@@ -196,15 +196,25 @@ if portfolio is not None:
    
     # Call the display_high_low function here
     display_high_low(symbol_data, selected_symbols, start_date, end_date)
-    # Retrieve ESG Data based on selected tickers
-    st.write("### Retrieve ESG Data")
-    for symbol in selected_symbols:
-        esg_data = get_esg_data_with_headers_and_error_handling(symbol)
-        if esg_data:
-            st.write(f"**ESG Data for {symbol}:**")
-            st.write(esg_data)
-        else:
-            st.write(f"No ESG data available for {symbol}.")  
+    
+
+   
+    # ESG Data Retrieval and Display
+    if tickers is not None:
+        selected_symbols = st.multiselect("Select Tickers for Analysis:", tickers['Symbol'].unique(), default=['AAPL'])
+        for symbol in selected_symbols:
+            esg_data = get_esg_data_with_headers_and_error_handling(symbol)
+            if esg_data:
+                st.write(f"### ESG Data for {symbol}:")
+                st.markdown(f"""
+                - **Total ESG risk score:** {esg_data.get("Total ESG risk score", "N/A")}
+                - **Environment risk score:** {esg_data.get("Environment risk score", "N/A")}
+                - **Social risk score:** {esg_data.get("Social risk score", "N/A")}
+                - **Governance risk score:** {esg_data.get("Governance risk score", "N/A")}
+                - **Controversy level:** {esg_data.get("Controversy level", "N/A")}
+                """)
+            else:
+                st.write(f"No ESG data available for {symbol}.") 
       
     # Now display the data table
     if 'Datetime' in symbol_data.columns:
