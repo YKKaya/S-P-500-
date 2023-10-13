@@ -4,7 +4,8 @@ import yfinance as yf
 from datetime import datetime, timedelta
 import plotly.express as px
 import plotly.graph_objects as go
-
+import requests
+from bs4 import BeautifulSoup
 
 # Function to fetch S&P 500 data
 @st.cache
