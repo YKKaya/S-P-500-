@@ -76,75 +76,6 @@ def get_esg_data_with_headers_and_error_handling(ticker):
 
     return result       
 
-
-# Function to display high and low return text
-def display_high_low(symbol_data, selected_symbols, start_date, end_date):
-    try:
-        for symbol in selected_symbols:
-            single_symbol_data = symbol_data[symbol_data['Symbol'] == symbol]
-            single_symbol_data['Datetime'] = pd.to_datetime(single_symbol_data['Datetime'])  # Ensure Datetime is in datetime format
-            if single_symbol_data.empty:
-                st.error(f"No data available for {symbol} in the selected date range.")
-                continue
-            min_return_row = single_symbol_data.loc[single_symbol_data['Low'].idxmin()]  # Get the row with the minimum 'Low' value
-            max_return_row = single_symbol_data.loc[single_symbol_data['High'].idxmax()]  # Get the row with the maximum 'High' value
-            
-            company_name = single_symbol_data['Company_Name'].values[0]  # Get the Company_Name from the dataset
-            
-            st.write(f"For the dates {start_date} to {end_date}, {company_name} recorded its:") 
-            st.write(f"Lowest trading price: ${min_return_row['Low']:.2f} on {min_return_row['Datetime'].strftime('%A, %B %d at %H:%M')}")
-            st.write(f"Highest trading price: ${max_return_row['High']:.2f} on {max_return_row['Datetime'].strftime('%A, %B %d at %H:%M')}")
-    except Exception as e:
-        st.error(f"An error occurred: {e}")
-
-        
-# Function to display the time series chart for selected tickers using Plotly
-def display_time_series_chart(symbol_data, selected_symbols, start_date, end_date):
-    try:
-        filtered_data = symbol_data[
-            (symbol_data['Symbol'].isin(selected_symbols)) &
-            (symbol_data['Datetime'].dt.date >= start_date) &
-            (symbol_data['Datetime'].dt.date <= end_date)
-        ]
-
-        if filtered_data.empty:
-            st.error("No data available for the selected symbols in the selected date range.")
-        else:
-            selected_tickers = ', '.join(selected_symbols)  # Join selected tickers with commas
-            
-            # Create a Plotly line chart
-            fig = go.Figure()  # Create a new Plotly figure
-            
-            # Customize the chart with explicit light colors
-            light_colors = ['#FF5733', '#FFBD33', '#33FF57', '#339CFF', '#FF33D1']  # Light colors
-            color_mapping = {symbol: light_colors[i % len(light_colors)] for i, symbol in enumerate(selected_symbols)}
-            
-            for symbol in selected_symbols:
-                symbol_data = filtered_data[filtered_data['Symbol'] == symbol]
-                # Add trace only once for each unique symbol
-                if symbol not in fig.data:
-                    fig.add_trace(
-                        go.Scatter(
-                            x=symbol_data['Datetime'],
-                            y=symbol_data['High'],
-                            mode='lines',
-                            name=symbol,
-                            line=dict(color=color_mapping[symbol], width=2)
-                        )
-                    )
-            
-            # Set chart title
-            fig.update_layout(
-                title=f"Time Series Chart for {selected_tickers} Tickers",
-                xaxis_title="Date",
-                yaxis_title="Highest Price"
-            )
-            
-            # Show the chart
-            st.plotly_chart(fig)
-    except Exception as e:
-        st.error(f"An error occurred: {e}")
-        
 # Main part of the code
 st.title("S&P 500 Companies Hourly Returns")
 st.write("""
@@ -156,15 +87,13 @@ url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
 tickers = fetch_sp500_data(url)
 Stocks = tickers.Symbol.to_list()
 Portfolio = download_stock_data(Stocks)
-portfolio = process_data(Portfolio)
-portfolio = merge_additional_info(portfolio, tickers)
 
-if portfolio is not None:
+if Portfolio is not None:
     # Date range selection
     st.write("Select Date Range:")
     start_date = st.date_input("Start Date", value=datetime.now() - timedelta(days=30), max_value=datetime.now())
     end_date = st.date_input("End Date", value=datetime.now(), max_value=datetime.now())
-    filtered_portfolio = portfolio[(portfolio['Datetime'].dt.date >= start_date) & (portfolio['Datetime'].dt.date <= end_date)]
+    filtered_portfolio = Portfolio[(Portfolio['Datetime'].dt.date >= start_date) & (Portfolio['Datetime'].dt.date <= end_date)]
 
     # Ticker selection
     default_ticker = ['AAPL']
@@ -172,17 +101,17 @@ if portfolio is not None:
     
     # ESG selection
     for symbol in selected_symbols:
-    esg_data = get_esg_data_with_headers_and_error_handling(symbol)
-    if esg_data:
-        st.write(f"### ESG Data for {symbol}:")
-        st.write(esg_data)
-    else:
-        st.write(f"No ESG data available for {symbol}.")
+        esg_data = get_esg_data_with_headers_and_error_handling(symbol)
+        if esg_data:
+            st.write(f"### ESG Data for {symbol}:")
+            st.write(esg_data)
+        else:
+            st.write(f"No ESG data available for {symbol}.")
         
     # Filter the data for the selected symbols
     symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
 
-   # Display the time series chart for selected tickers
+    # Display the time series chart for selected tickers
     if selected_symbols:  # Check if at least one ticker is selected
         display_time_series_chart(symbol_data, selected_symbols, start_date, end_date)
     else:
