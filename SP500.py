@@ -128,10 +128,8 @@ def display_risk_levels(ticker, ticker_esg_score):
         x=ticker_esg_score,
         y=risk_levels[score_position],
         text=f"{ticker}: {ticker_esg_score}",
-        showarrow=True,
-        arrowhead=4,
-        ax=0,
-        ay=-40
+        showarrow=False,
+        font=dict(color='black', size=12)
     )
     
     # Update chart aesthetics
