@@ -103,16 +103,18 @@ def display_risk_levels():
     risk_levels = ["Very Low", "Low", "Medium", "High", "Severe"]
     colors = ["green", "#ADFF2F", "yellow", "orange", "red"]
     
-    fig, ax = plt.subplots(figsize=(5, 7))
-    ax.axis('tight')
-    ax.axis('off')
-    ax.table(cellText=[[level] for level in risk_levels],
-             colLabels=["Risk Level"],
-             cellColours=[[color] for color in colors],
-             cellLoc = 'center', 
-             loc='center')
+    fig = go.Figure(data=[go.Table(
+        header=dict(values=["Risk Level"],
+                    fill_color='paleturquoise',
+                    align='center'),
+        cells=dict(values=[risk_levels],
+                   fill_color=[colors],
+                   align='center'))
+    ])
     
-    st.pyplot(fig)
+    fig.update_layout(width=500, height=300)
+    
+    st.plotly_chart(fig)
 
 # Function to merge additional info
 def merge_additional_info(portfolio, tickers):
