@@ -278,7 +278,7 @@ if portfolio is not None:
 
             # Display the risk levels table
             if total_esg_score:
-                display_risk_levels(total_esg_score)
+                display_risk_levels(symbol, total_esg_score)
             else:
                 st.error("Unable to fetch ESG score for the selected ticker.")
             
