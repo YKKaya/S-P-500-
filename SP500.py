@@ -268,27 +268,26 @@ if portfolio is not None:
     
 
    
-    # ESG Data Retrieval and Display
-
-            esg_data_list = []
-            esg_scores = []
-
-            for symbol in selected_symbols:
-                esg_data = get_esg_data_with_headers_and_error_handling(symbol)
-                if esg_data:
-                    esg_data_list.append(esg_data)
-                    esg_scores.append(esg_data.get("Total ESG risk score", None))
-
-            # Display consolidated ESG data table
-            if esg_data_list:
-                display_esg_data_table(selected_symbols, esg_data_list)
-
-            # Display ESG risk levels visualization for all selected tickers
-            if esg_scores:
-                display_risk_levels(selected_symbols, esg_scores)
+   # ESG Data Retrieval and Display
+    esg_data_list = []
+    esg_scores = []
+    
+    for symbol in selected_symbols:
+        esg_data = get_esg_data_with_headers_and_error_handling(symbol)
+        if esg_data:
+            esg_data_list.append(esg_data)
+            esg_scores.append(esg_data.get("Total ESG risk score", None))
+    
+    # Display consolidated ESG data table
+    if esg_data_list:
+        display_esg_data_table(selected_symbols, esg_data_list)
+    
+    # Display ESG risk levels visualization for all selected tickers
+    if esg_scores:
+        display_risk_levels(selected_symbols, esg_scores)
             
-            st.write("This data is sourced from Yahoo Finance and risk ratings are conducted by Sustainalytics.")
-            st.markdown("[More information on Sustainalytics ESG Data](https://www.sustainalytics.com/esg-data)")
+    st.write("This data is sourced from Yahoo Finance and risk ratings are conducted by Sustainalytics.")
+    st.markdown("[More information on Sustainalytics ESG Data](https://www.sustainalytics.com/esg-data)")
                       
         else:
             st.write(f"No ESG data available for {symbol}.")
