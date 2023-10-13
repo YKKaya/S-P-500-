@@ -47,12 +47,6 @@ def get_esg_data_with_headers_and_error_handling(ticker):
     except:
         result["Total ESG risk score"] = None
 
-    try:
-        nth_percentile = soup.find("div", {"class": "D(ib) Fz(12px) Fw(n) Mstart(2px)"}).text
-        result["n'th percentile"] = nth_percentile
-    except:
-        result["n'th percentile"] = None
-
     scores = soup.find_all("div", {"class": "D(ib) Fz(23px) smartphone_Fz(22px) Fw(600)"})
     try:
         result["Environment risk score"] = float(scores[0].text)
@@ -170,15 +164,6 @@ st.write("""
 An interactive analysis of S&P 500 companies, allowing users to view and download historical stock data, returns, 
 additional company information. The dataset provides 1 year of historical data, recorded at hourly intervals. 
 """)
-# ESG Data Retrieval
-st.write("### Retrieve ESG Data")
-user_input_ticker = st.text_input("Enter a ticker:", value="AAPL").upper()
-if user_input_ticker:
-    esg_data = get_esg_data_with_headers_and_error_handling(user_input_ticker)
-    if esg_data:
-        st.write(esg_data)
-    else:
-        st.write(f"No ESG data available for {user_input_ticker}.")
         
 url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
 tickers = fetch_sp500_data(url)
@@ -197,7 +182,17 @@ if portfolio is not None:
     # Ticker selection
     default_ticker = ['AAPL']
     selected_symbols = st.multiselect("Tickers:", filtered_portfolio['Symbol'].unique(), default=default_ticker)
-
+    
+    # Retrieve ESG Data based on selected tickers
+    st.write("### Retrieve ESG Data")
+    for symbol in selected_symbols:
+        esg_data = get_esg_data_with_headers_and_error_handling(symbol)
+        if esg_data:
+            st.write(f"**ESG Data for {symbol}:**")
+            st.write(esg_data)
+        else:
+            st.write(f"No ESG data available for {symbol}.")
+            
     # Filter the data for the selected symbols
     symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
 
