@@ -138,8 +138,8 @@ def display_risk_levels(ticker_esg_score):
     fig.update_layout(
         width=500, 
         height=250,
-        plot_bgcolor='#000000',  # Black background
-        paper_bgcolor='#000000',  # Black paper background
+        plot_bgcolor='rgba(0,0,0,0)',  # Transparent background
+        paper_bgcolor='rgba(0,0,0,0)',  # Transparent paper background
         xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
         yaxis=dict(showgrid=False, zeroline=False, showticklabels=False)
     )
