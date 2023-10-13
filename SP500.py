@@ -71,7 +71,20 @@ def get_esg_data_with_headers_and_error_handling(ticker):
         result["Controversy level"] = None
 
     return result
-    
+
+# Function to map ESG risk score to risk level
+def map_esg_risk_to_level(score):
+    if score < 10:
+        return "Very Low"
+    elif 10 <= score < 20:
+        return "Low"
+    elif 20 <= score < 30:
+        return "Medium"
+    elif 30 <= score < 40:
+        return "High"
+    else:
+        return "Severe"
+        
 # Function to process data
 def process_data(Portfolio):
     try:
@@ -81,6 +94,12 @@ def process_data(Portfolio):
     except Exception as e:
         st.error(f"Error processing data: {e}")
         return None
+        
+# Display the risk levels in a static table
+def display_risk_levels():
+    st.write("### ESG Risk Levels:")
+    risk_levels = ["Very Low", "Low", "Medium", "High", "Severe"]
+    st.table(pd.DataFrame(risk_levels, columns=["Risk Level"]))
 
 # Function to merge additional info
 def merge_additional_info(portfolio, tickers):
@@ -200,21 +219,29 @@ if portfolio is not None:
 
    
     # ESG Data Retrieval and Display
-    if tickers is not None:
-        selected_symbols = st.multiselect("Select Tickers for Analysis:", tickers['Symbol'].unique(), default=['AAPL'])
-        for symbol in selected_symbols:
-            esg_data = get_esg_data_with_headers_and_error_handling(symbol)
-            if esg_data:
-                st.write(f"### ESG Data for {symbol}:")
-                st.markdown(f"""
-                - **Total ESG risk score:** {esg_data.get("Total ESG risk score", "N/A")}
-                - **Environment risk score:** {esg_data.get("Environment risk score", "N/A")}
-                - **Social risk score:** {esg_data.get("Social risk score", "N/A")}
-                - **Governance risk score:** {esg_data.get("Governance risk score", "N/A")}
-                - **Controversy level:** {esg_data.get("Controversy level", "N/A")}
-                """)
-            else:
-                st.write(f"No ESG data available for {symbol}.") 
+    for symbol in selected_symbols:
+        esg_data = get_esg_data_with_headers_and_error_handling(symbol)
+        if esg_data:
+            total_esg_score = esg_data.get("Total ESG risk score", None)
+            risk_level = map_esg_risk_to_level(total_esg_score) if total_esg_score is not None else "N/A"
+            
+            st.write(f"### ESG Data for {symbol}:")
+            st.markdown(f"""
+            - **Total ESG risk score:** {total_esg_score} ({risk_level})
+            - **Environment risk score:** {esg_data.get("Environment risk score", "N/A")}
+            - **Social risk score:** {esg_data.get("Social risk score", "N/A")}
+            - **Governance risk score:** {esg_data.get("Governance risk score", "N/A")}
+            - **Controversy level:** {esg_data.get("Controversy level", "N/A")}
+            """)
+
+            st.write("This data is sourced from Yahoo Finance and risk ratings are conducted by Sustainalytics.")
+            st.markdown("[More information on Sustainalytics ESG Data](https://www.sustainalytics.com/esg-data)")
+            st.video("https://www.youtube.com/embed/bJgMM31wiRs?autoplay=1")
+            
+            # Display the risk levels table
+            display_risk_levels()
+        else:
+            st.write(f"No ESG data available for {symbol}.")
       
     # Now display the data table
     if 'Datetime' in symbol_data.columns:
