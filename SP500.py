@@ -97,22 +97,44 @@ def process_data(Portfolio):
         return None
         
 # Display the risk levels in a static table
-def display_risk_levels():
+def display_risk_levels(ticker_esg_score):
     st.write("### ESG Risk Levels:")
     
     risk_levels = ["Very Low", "Low", "Medium", "High", "Severe"]
-    colors = ["green", "#ADFF2F", "yellow", "orange", "red"]
+    colors = ["#FFEDCC", "#FFDB99", "#FFC266", "#FF9900", "#FF6600"]  # Shades of orange from light to dark
+    
+    # Determine the position of the ticker's ESG score on the scale
+    score_position = risk_levels.index(map_esg_risk_to_level(ticker_esg_score))
+    
+    # Highlight the cell corresponding to the ticker's ESG score
+    cell_colors = [['#F5F5F5'] * 5 for _ in range(5)]
+    cell_colors[score_position][0] = colors[score_position]
     
     fig = go.Figure(data=[go.Table(
-        header=dict(values=["Risk Level"],
+        header=dict(values=["Risk Level", "Score Range"],
                     fill_color='paleturquoise',
-                    align='center'),
-        cells=dict(values=[risk_levels],
-                   fill_color=[colors],
-                   align='center'))
-    ])
+                    align='center',
+                    font=dict(color='black', size=14)),
+        cells=dict(values=[risk_levels, ["0-10", "10-20", "20-30", "30-40", "40+"]],
+                   fill_color=cell_colors,
+                   align='center',
+                   font=dict(color='black', size=12))
+    )])
     
-    fig.update_layout(width=500, height=300)
+    # Add a text annotation to display the ticker's ESG score
+    fig.add_annotation(
+        x=1.5,
+        y=score_position,
+        xref="x",
+        yref="y",
+        text=f"Score: {ticker_esg_score}",
+        showarrow=True,
+        arrowhead=4,
+        ax=0,
+        ay=-40
+    )
+    
+    fig.update_layout(width=500, height=250)
     
     st.plotly_chart(fig)
 
@@ -250,8 +272,11 @@ if portfolio is not None:
             """)
 
             # Display the risk levels table
-            display_risk_levels()
-            
+            if ticker_esg_score:
+                display_risk_levels(ticker_esg_score)
+            else:
+                st.error("Unable to fetch ESG score for the selected ticker.")
+                
             st.write("This data is sourced from Yahoo Finance and risk ratings are conducted by Sustainalytics.")
             st.markdown("[More information on Sustainalytics ESG Data](https://www.sustainalytics.com/esg-data)")
             st.video("https://www.youtube.com/embed/bJgMM31wiRs?autoplay=1")
