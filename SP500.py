@@ -123,13 +123,17 @@ def display_risk_levels(ticker, ticker_esg_score):
     fig.data[score_position].marker.line.width = 3
     fig.data[score_position].marker.line.color = "white"
     
+    # Adjust the position of the annotation to be inside the bar
+    annotation_x = df.loc[score_position, 'Score Range'] - 3  # Adjusted for visibility
+    
     # Annotate the chart with the selected ticker's score
     fig.add_annotation(
-        x=ticker_esg_score,
+        x=annotation_x,
         y=risk_levels[score_position],
         text=f"{ticker}: {ticker_esg_score}",
         showarrow=False,
-        font=dict(color='black', size=12)
+        font=dict(color='black', size=12),
+        xshift=10
     )
     
     # Update chart aesthetics
