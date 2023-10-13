@@ -83,11 +83,17 @@ Operations: Filters the data based on the selected symbols and date range, then 
 ## Main Operations:
 
 Title and Introduction: The app displays a title and a brief introduction about its functionality.
+
 Data Fetching: The app fetches the list of S&P 500 companies from Wikipedia and downloads their historical stock data.
+
 Date Range Selection: Users can select a date range to filter the data.
+
 Ticker Selection: Users can select multiple stock tickers for analysis.
+
 Time Series Chart: The app displays a time series chart for the selected tickers based on the chosen date range.
+
 ESG Data Retrieval: The app retrieves and displays ESG data for the selected tickers.
+
 Data Table: The app displays a data table containing the filtered stock data. Users can also download the data as a CSV or Excel file.
 
 ## Requirements
