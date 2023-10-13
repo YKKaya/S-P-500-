@@ -97,7 +97,7 @@ def process_data(Portfolio):
         return None
         
 # Display the risk levels in a static table
-def display_risk_levels(ticker_esg_score):
+def display_risk_levels(ticker, ticker_esg_score):
     st.write("### ESG Risk Levels:")
     
     risk_levels = ["Very Low", "Low", "Medium", "High", "Severe"]
@@ -123,21 +123,18 @@ def display_risk_levels(ticker_esg_score):
     
     # Add a text annotation to display the ticker's ESG score
     fig.add_annotation(
-        x=1.5,
+        x=2,  # Adjusted x position to move the annotation to the right
         y=score_position,
         xref="x",
         yref="y",
-        text=f"Score: {ticker_esg_score}",
-        showarrow=True,
-        arrowhead=4,
-        ax=0,
-        ay=-40,
-        font=dict(color='white')
+        text=f"{ticker}'s Score: {ticker_esg_score}",
+        showarrow=False,  # Removed the arrow
+        font=dict(color='white', size=12)
     )
     
     fig.update_layout(
         width=600, 
-        height=400,  # Increased height
+        height=400,
         plot_bgcolor='rgba(0,0,0,0)',  # Transparent background
         paper_bgcolor='rgba(0,0,0,0)',  # Transparent paper background
         xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
@@ -145,6 +142,7 @@ def display_risk_levels(ticker_esg_score):
     )
     
     st.plotly_chart(fig)
+
 
 # Function to merge additional info
 def merge_additional_info(portfolio, tickers):
