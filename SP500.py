@@ -172,11 +172,10 @@ additional company information. The dataset provides 1 year of historical data, 
 """)
 # ESG Data Retrieval
 st.write("### Retrieve ESG Data")
-user_input_ticker = st.text_input("Enter a ticker symbol for ESG data (e.g., AAPL):")
+user_input_ticker = st.text_input("Enter a ticker:", value="AAPL").upper()
 if user_input_ticker:
     esg_data = get_esg_data_with_headers_and_error_handling(user_input_ticker)
     if esg_data:
-        st.write(f"### ESG Data for {user_input_ticker}:")
         st.write(esg_data)
     else:
         st.write(f"No ESG data available for {user_input_ticker}.")
