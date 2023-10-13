@@ -6,6 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
+import plotly.express as px
 
 # Function to fetch S&P 500 data
 @st.cache
@@ -101,45 +102,47 @@ def display_risk_levels(ticker, ticker_esg_score):
     st.write("### ESG Risk Levels:")
     
     risk_levels = ["Very Low", "Low", "Medium", "High", "Severe"]
+    score_ranges = [5, 15, 25, 35, 45]  # Midpoint of each score range for plotting
     colors = ["#FFEDCC", "#FFDB99", "#FFC266", "#FF9900", "#FF6600"]  # Shades of orange from light to dark
     
     # Determine the position of the ticker's ESG score on the scale
     score_position = risk_levels.index(map_esg_risk_to_level(ticker_esg_score))
     
-    # Highlight the cell corresponding to the ticker's ESG score
-    cell_colors = [['#2e2e2e'] * 5 for _ in range(5)]
-    cell_colors[score_position][0] = colors[score_position]
+    # Create a DataFrame for plotting
+    df = pd.DataFrame({
+        'Risk Level': risk_levels,
+        'Score Range': score_ranges,
+        'Color': colors
+    })
     
-    fig = go.Figure(data=[go.Table(
-        header=dict(values=["Risk Level", "Score Range"],
-                    fill_color='#2e2e2e',
-                    line_color='#2e2e2e',
-                    align='center',
-                    font=dict(color='white', size=14)),
-        cells=dict(values=[risk_levels, ["0-10", "10-20", "20-30", "30-40", "40+"]],
-                   fill_color=cell_colors,
-                   line_color='#2e2e2e',
-                   align='center',
-                   font=dict(color='white', size=12))
-    )])
+    # Create a bar chart
+    fig = px.bar(df, x='Score Range', y='Risk Level', color='Color', orientation='h',
+                 color_discrete_map=dict(zip(df['Color'], df['Color'])))
     
-    # Add a text annotation to display the ticker's ESG score
+    # Highlight the bar corresponding to the ticker's risk level
+    fig.data[score_position].marker.line.width = 3
+    fig.data[score_position].marker.line.color = "white"
+    
+    # Annotate the chart with the selected ticker's score
     fig.add_annotation(
-        x=1.1,  # Adjusted position to the right outside of the figure
-        y=score_position/4.5,  # Adjusted y position relative to the height of the figure
-        xref="paper",
-        yref="paper",
-        text=f"{ticker}'s Score: {ticker_esg_score}",
-        showarrow=False,
-        font=dict(color='white', size=12)
+        x=ticker_esg_score,
+        y=risk_levels[score_position],
+        text=f"{ticker}: {ticker_esg_score}",
+        showarrow=True,
+        arrowhead=4,
+        ax=0,
+        ay=-40
     )
     
+    # Update chart aesthetics
     fig.update_layout(
-        width=600,
-        height=300,
-        paper_bgcolor='#2e2e2e',
+        title=f"ESG Risk Levels and {ticker}'s Score",
+        xaxis_title="Score Range",
+        yaxis_title="Risk Level",
+        showlegend=False,
         plot_bgcolor='#2e2e2e',
-        margin=dict(l=0, r=0, b=0, t=0)
+        paper_bgcolor='#2e2e2e',
+        font=dict(color='white')
     )
     
     st.plotly_chart(fig)
