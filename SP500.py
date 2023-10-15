@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 import yfinance as yf
@@ -7,7 +8,7 @@ from bs4 import BeautifulSoup
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 import plotly.express as px
-
+import base64
 # Function to fetch S&P 500 data
 @st.cache
 def fetch_sp500_data(url):
@@ -231,7 +232,21 @@ def display_time_series_chart(symbol_data, selected_symbols, start_date, end_dat
             st.plotly_chart(fig)
     except Exception as e:
         st.error(f"An error occurred: {e}")
-        
+
+#download the link
+def download_link(object_to_download, download_filename, download_link_text):
+    """
+    Generates a link to download the given object_to_download.
+    """
+    # Convert DataFrame to CSV string
+    if isinstance(object_to_download, pd.DataFrame):
+        object_to_download = object_to_download.to_csv(index=False)
+
+    # Some strings <-> bytes conversions necessary here
+    b64 = base64.b64encode(object_to_download.encode()).decode()
+
+    return f'<a href="data:application/octet-stream;base64,{b64}" download="{download_filename}">{download_link_text}</a>'
+
 # Main part of the code
 st.title("S&P 500 Companies Hourly Returns")
 st.write("""
