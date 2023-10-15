@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 import plotly.express as px
-
+import base64
 # Function to fetch S&P 500 data
 @st.cache
 def fetch_sp500_data(url):
