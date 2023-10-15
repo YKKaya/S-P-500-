@@ -238,6 +238,7 @@ def download_link(object_to_download, download_filename, download_link_text):
     """
     Generates a link to download the given object_to_download.
     """
+    # Convert DataFrame to CSV string
     if isinstance(object_to_download, pd.DataFrame):
         object_to_download = object_to_download.to_csv(index=False)
 
@@ -245,6 +246,7 @@ def download_link(object_to_download, download_filename, download_link_text):
     b64 = base64.b64encode(object_to_download.encode()).decode()
 
     return f'<a href="data:application/octet-stream;base64,{b64}" download="{download_filename}">{download_link_text}</a>'
+
 # Main part of the code
 st.title("S&P 500 Companies Hourly Returns")
 st.write("""
