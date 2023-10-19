@@ -14,7 +14,7 @@ import base64
 # Function to fetch S&P 500 esg data
 @st.cache
 def fetch_esg_scores():
-    file_path = "SP 500 ESG Risk Ratings.csv"
+    file_path = "https://raw.githubusercontent.com/YKKaya/S-P-500-/test/SP%20500%20ESG%20Risk%20Ratings.csv"
     try:
         data = pd.read_csv(file_path)
         return data
