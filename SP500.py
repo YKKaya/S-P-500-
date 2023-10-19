@@ -346,8 +346,12 @@ if choice == "S&P 500 Companies Hourly Returns":
 
 elif choice == "ESG Scores from CSV":
     st.title("ESG Scores from CSV")
+    
     esg_scores = fetch_esg_scores()
-    st.write(esg_scores)
+    if esg_scores is None:
+        st.error("Error fetching ESG scores. Please check the URL or try again later.")
+    else:
+        st.write(esg_scores)
     
     # Download ESG scores as CSV
     if st.button("Download ESG scores as CSV"):
