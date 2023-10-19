@@ -10,14 +10,19 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 import base64
 
-# Function to fetch S&P 500 data
 
+# Function to fetch S&P 500 esg data
 @st.cache
-def load_esg_scores():
+def fetch_esg_scores():
     url = "https://app.noteable.io/f/e00e6b0d-7fad-4984-ac64-f17a8e3cb943/esg_scores.csv"
-    data = pd.read_csv(url)
-    return data
-    
+    try:
+        data = pd.read_csv(url)
+        return data
+    except Exception as e:
+        st.error(f"Error fetching ESG scores: {e}")
+        return None
+
+# Function to fetch S&P 500 data    
 @st.cache
 def fetch_sp500_data(url):
     try:
