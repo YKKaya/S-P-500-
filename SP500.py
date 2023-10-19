@@ -9,6 +9,7 @@ import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 import plotly.express as px
 import base64
+
 # Function to fetch S&P 500 data
 
 @st.cache
@@ -256,13 +257,15 @@ def download_link(object_to_download, download_filename, download_link_text):
 
 # Main part of the code
 st.sidebar.title("Navigation")
-choice = st.sidebar.radio("Choose a section:", ["S&P 500 Companies Hourly Returns", "ESG Scores"])
-st.title("S&P 500 Companies Hourly Returns")
-st.write("""
-An interactive analysis of S&P 500 companies, allowing users to view and download historical stock data, returns, 
-additional company information. The dataset provides 1 year of historical data, recorded at hourly intervals. 
-""")
-        
+choice = st.sidebar.radio("Choose a section:", ["S&P 500 Companies Hourly Returns", "ESG Scores from CSV"])
+
+if choice == "S&P 500 Companies Hourly Returns":
+    st.title("S&P 500 Companies Hourly Returns")
+    st.write("""
+    An interactive analysis of S&P 500 companies, allowing users to view and download historical stock data, returns, 
+    additional company information. The dataset provides 1 year of historical data, recorded at hourly intervals. 
+    """)
+    
     url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
     tickers = fetch_sp500_data(url)
     Stocks = tickers.Symbol.to_list()
@@ -270,7 +273,6 @@ additional company information. The dataset provides 1 year of historical data, 
     portfolio = process_data(Portfolio)
     portfolio = merge_additional_info(portfolio, tickers)
     
-        
     if portfolio is not None:
         # Date range selection
         st.write("Select Date Range:")
@@ -282,17 +284,16 @@ additional company information. The dataset provides 1 year of historical data, 
         default_ticker = ['AAPL']
         selected_symbols = st.multiselect("Tickers:", filtered_portfolio['Symbol'].unique(), default=default_ticker)
         
-                    
         # Filter the data for the selected symbols
         symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
     
-       # Display the time series chart for selected tickers
+        # Display the time series chart for selected tickers
         if selected_symbols:  # Check if at least one ticker is selected
             display_time_series_chart(symbol_data, selected_symbols, start_date, end_date)
         else:
             st.warning("Please select at least one ticker for comparison.") 
     
-       # ESG Data Retrieval and Display
+        # ESG Data Retrieval and Display
         esg_data_list = []
         esg_scores = []
         
@@ -342,8 +343,20 @@ elif choice == "ESG Scores from CSV":
     st.title("ESG Scores from CSV")
     esg_scores = fetch_esg_scores()
     st.write(esg_scores)
-This code integrates the new tab for displaying the ESG scores from the provided CSV link into your Streamlit app. Make sure to integrate this with the rest of your Streamlit app code. If there are any other specific functionalities or changes you'd like to add, please let me know!
-
+    
+    # Download ESG scores as CSV
+    if st.button("Download ESG scores as CSV"):
+        tmp_download_link = download_link(esg_scores, 'esg_scores.csv', 'Click here to download ESG scores as CSV!')
+        st.markdown(tmp_download_link, unsafe_allow_html=True)
+    
+    # Download ESG scores as Excel
+    if st.button("Download ESG scores as Excel"):
+        towrite = io.BytesIO()
+        downloaded_file = esg_scores.to_excel(towrite, index=False, sheet_name='Sheet1')
+        towrite.seek(0)
+        b64 = base64.b64encode(towrite.read()).decode()
+        tmp_download_link = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}" download="esg_scores.xlsx">Download excel file</a>'
+        st.markdown(tmp_download_link, unsafe_allow_html=True)
 
 
 
