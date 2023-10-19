@@ -255,95 +255,96 @@ def download_link(object_to_download, download_filename, download_link_text):
     return f'<a href="data:application/octet-stream;base64,{b64}" download="{download_filename}">{download_link_text}</a>'
 
 # Main part of the code
-menu = ["Home", "ESG Scores", "S&P 500 Companies Hourly Returns"]
-choice = st.sidebar.selectbox("Menu", menu)
+st.sidebar.title("Navigation")
+choice = st.sidebar.radio("Choose a section:", ["S&P 500 Companies Hourly Returns", "ESG Scores"])
 st.title("S&P 500 Companies Hourly Returns")
 st.write("""
 An interactive analysis of S&P 500 companies, allowing users to view and download historical stock data, returns, 
 additional company information. The dataset provides 1 year of historical data, recorded at hourly intervals. 
 """)
         
-url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
-tickers = fetch_sp500_data(url)
-Stocks = tickers.Symbol.to_list()
-Portfolio = download_stock_data(Stocks)
-portfolio = process_data(Portfolio)
-portfolio = merge_additional_info(portfolio, tickers)
-
-if choice == "Home":
-    st.title("Welcome to the Home Page")
-    # Add any other content or functionality you want on the Home page
-
-elif choice == "ESG Scores":
-    st.title("ESG Scores Data")
-    esg_data = load_esg_scores()
-    st.write(esg_data)
-
-elif choice == "S&P 500 Companies Hourly Returns":
+    url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
+    tickers = fetch_sp500_data(url)
+    Stocks = tickers.Symbol.to_list()
+    Portfolio = download_stock_data(Stocks)
+    portfolio = process_data(Portfolio)
+    portfolio = merge_additional_info(portfolio, tickers)
     
-if portfolio is not None:
-    # Date range selection
-    st.write("Select Date Range:")
-    start_date = st.date_input("Start Date", value=datetime.now() - timedelta(days=30), max_value=datetime.now())
-    end_date = st.date_input("End Date", value=datetime.now(), max_value=datetime.now())
-    filtered_portfolio = portfolio[(portfolio['Datetime'].dt.date >= start_date) & (portfolio['Datetime'].dt.date <= end_date)]
-
-    # Ticker selection
-    default_ticker = ['AAPL']
-    selected_symbols = st.multiselect("Tickers:", filtered_portfolio['Symbol'].unique(), default=default_ticker)
+        
+    if portfolio is not None:
+        # Date range selection
+        st.write("Select Date Range:")
+        start_date = st.date_input("Start Date", value=datetime.now() - timedelta(days=30), max_value=datetime.now())
+        end_date = st.date_input("End Date", value=datetime.now(), max_value=datetime.now())
+        filtered_portfolio = portfolio[(portfolio['Datetime'].dt.date >= start_date) & (portfolio['Datetime'].dt.date <= end_date)]
     
+        # Ticker selection
+        default_ticker = ['AAPL']
+        selected_symbols = st.multiselect("Tickers:", filtered_portfolio['Symbol'].unique(), default=default_ticker)
+        
+                    
+        # Filter the data for the selected symbols
+        symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
+    
+       # Display the time series chart for selected tickers
+        if selected_symbols:  # Check if at least one ticker is selected
+            display_time_series_chart(symbol_data, selected_symbols, start_date, end_date)
+        else:
+            st.warning("Please select at least one ticker for comparison.") 
+    
+       # ESG Data Retrieval and Display
+        esg_data_list = []
+        esg_scores = []
+        
+        for symbol in selected_symbols:
+            esg_data = get_esg_data_with_headers_and_error_handling(symbol)
+            if esg_data:
+                esg_data_list.append(esg_data)
+                esg_scores.append(esg_data.get("Total ESG risk score", None))
+        
+        # Display consolidated ESG data table
+        if esg_data_list:
+            display_esg_data_table(selected_symbols, esg_data_list)
+        
+        # Display ESG risk levels visualization for all selected tickers
+        if esg_scores:
+            display_risk_levels(selected_symbols, esg_scores)
                 
-    # Filter the data for the selected symbols
-    symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
-
-   # Display the time series chart for selected tickers
-    if selected_symbols:  # Check if at least one ticker is selected
-        display_time_series_chart(symbol_data, selected_symbols, start_date, end_date)
-    else:
-        st.warning("Please select at least one ticker for comparison.") 
-
-   # ESG Data Retrieval and Display
-    esg_data_list = []
-    esg_scores = []
+            st.markdown("**Data Source:** [Yahoo Finance](https://finance.yahoo.com/)")
+            st.markdown("**Risk Ratings:** Conducted by [Sustainalytics](https://www.sustainalytics.com/)")
+                          
+        else:
+            st.write(f"No ESG data available for {symbol}.")
+          
+        # Now display the data table
+        if 'Datetime' in symbol_data.columns:
+            symbol_data.set_index('Datetime', inplace=True)
+            st.write("### Data Table:")
+            st.dataframe(symbol_data)
     
-    for symbol in selected_symbols:
-        esg_data = get_esg_data_with_headers_and_error_handling(symbol)
-        if esg_data:
-            esg_data_list.append(esg_data)
-            esg_scores.append(esg_data.get("Total ESG risk score", None))
+            if st.button("Download data as CSV"):
+                tmp_download_link = download_link(symbol_data, 'your_data.csv', 'Click here to download your data as CSV!')
+                st.markdown(tmp_download_link, unsafe_allow_html=True)
     
-    # Display consolidated ESG data table
-    if esg_data_list:
-        display_esg_data_table(selected_symbols, esg_data_list)
-    
-    # Display ESG risk levels visualization for all selected tickers
-    if esg_scores:
-        display_risk_levels(selected_symbols, esg_scores)
-            
-        st.markdown("**Data Source:** [Yahoo Finance](https://finance.yahoo.com/)")
-        st.markdown("**Risk Ratings:** Conducted by [Sustainalytics](https://www.sustainalytics.com/)")
-                      
+            if st.button("Download data as Excel"):
+                towrite = io.BytesIO()
+                downloaded_file = symbol_data.to_excel(towrite, index=False, sheet_name='Sheet1')
+                towrite.seek(0)
+                b64 = base64.b64encode(towrite.read()).decode()
+                tmp_download_link = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}" download="your_data.xlsx">Download excel file</a>'
+                st.markdown(tmp_download_link, unsafe_allow_html=True)
+        else:
+            st.error("Datetime column not found in the data.")
     else:
-        st.write(f"No ESG data available for {symbol}.")
-      
-    # Now display the data table
-    if 'Datetime' in symbol_data.columns:
-        symbol_data.set_index('Datetime', inplace=True)
-        st.write("### Data Table:")
-        st.dataframe(symbol_data)
+        st.error("No data available for the selected symbol.")
 
-        if st.button("Download data as CSV"):
-            tmp_download_link = download_link(symbol_data, 'your_data.csv', 'Click here to download your data as CSV!')
-            st.markdown(tmp_download_link, unsafe_allow_html=True)
+elif choice == "ESG Scores from CSV":
+    st.title("ESG Scores from CSV")
+    esg_scores = fetch_esg_scores()
+    st.write(esg_scores)
+This code integrates the new tab for displaying the ESG scores from the provided CSV link into your Streamlit app. Make sure to integrate this with the rest of your Streamlit app code. If there are any other specific functionalities or changes you'd like to add, please let me know!
 
-        if st.button("Download data as Excel"):
-            towrite = io.BytesIO()
-            downloaded_file = symbol_data.to_excel(towrite, index=False, sheet_name='Sheet1')
-            towrite.seek(0)
-            b64 = base64.b64encode(towrite.read()).decode()
-            tmp_download_link = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}" download="your_data.xlsx">Download excel file</a>'
-            st.markdown(tmp_download_link, unsafe_allow_html=True)
-    else:
-        st.error("Datetime column not found in the data.")
-else:
-    st.error("No data available for the selected symbol.")
+
+
+
+
