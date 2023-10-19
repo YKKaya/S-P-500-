@@ -10,6 +10,13 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 import base64
 # Function to fetch S&P 500 data
+
+@st.cache
+def load_esg_scores():
+    url = "https://app.noteable.io/f/e00e6b0d-7fad-4984-ac64-f17a8e3cb943/esg_scores.csv"
+    data = pd.read_csv(url)
+    return data
+    
 @st.cache
 def fetch_sp500_data(url):
     try:
@@ -248,6 +255,8 @@ def download_link(object_to_download, download_filename, download_link_text):
     return f'<a href="data:application/octet-stream;base64,{b64}" download="{download_filename}">{download_link_text}</a>'
 
 # Main part of the code
+menu = ["Home", "ESG Scores", "S&P 500 Companies Hourly Returns"]
+choice = st.sidebar.selectbox("Menu", menu)
 st.title("S&P 500 Companies Hourly Returns")
 st.write("""
 An interactive analysis of S&P 500 companies, allowing users to view and download historical stock data, returns, 
@@ -261,6 +270,17 @@ Portfolio = download_stock_data(Stocks)
 portfolio = process_data(Portfolio)
 portfolio = merge_additional_info(portfolio, tickers)
 
+if choice == "Home":
+    st.title("Welcome to the Home Page")
+    # Add any other content or functionality you want on the Home page
+
+elif choice == "ESG Scores":
+    st.title("ESG Scores Data")
+    esg_data = load_esg_scores()
+    st.write(esg_data)
+
+elif choice == "S&P 500 Companies Hourly Returns":
+    
 if portfolio is not None:
     # Date range selection
     st.write("Select Date Range:")
