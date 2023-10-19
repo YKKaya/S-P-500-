@@ -9,6 +9,7 @@ import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 import plotly.express as px
 import base64
+
 # Function to fetch S&P 500 data
 @st.cache
 def fetch_sp500_data(url):
@@ -74,7 +75,22 @@ def retrieve_esg_data(ticker):
         result["Controversy level"] = None
 
     return result
+    
+# Function to scrape Yahoo Finance for the ESG data of selected companies
+def scrape_yahoo_esg_data(selected_symbols):
+    data = []
 
+    for ticker in selected_symbols:
+        try:
+            esg_data = retrieve_esg_data(ticker)
+            esg_data["Ticker"] = ticker
+            data.append(esg_data)
+        except Exception as e:
+            print(f"Failed to fetch ESG data for {ticker}. Error: {e}")
+            continue
+
+    df = pd.DataFrame(data)
+    return df
 # Function to map ESG risk score to risk level
 def map_esg_risk_to_level(score):
     if score < 10:
@@ -288,8 +304,7 @@ if portfolio is not None:
     # Ticker selection
     default_ticker = ['AAPL']
     selected_symbols = st.multiselect("Tickers:", filtered_portfolio['Symbol'].unique(), default=default_ticker)
-    
-                
+                    
     # Filter the data for the selected symbols
     symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
 
@@ -299,9 +314,27 @@ if portfolio is not None:
     else:
         st.warning("Please select at least one ticker for comparison.") 
 
+    # Scrape and display the ESG Data Table
+    esg_df = scrape_yahoo_esg_data(selected_symbols)
+    
+    # Handle blank values by replacing them with "Data Not Available"
+    esg_df.fillna("Data Not Available", inplace=True)
+    
+    # Display the explanatory text and the ESG Data Table
+    st.write("""
+    ### ESG Data Table:
+    The table below provides the ESG (Environmental, Social, and Governance) scores for the selected tickers. 
+    These scores are retrieved from Yahoo Finance and are based on ratings conducted by Sustainalytics. 
+    The scores provide insights into the sustainability and ethical impact of a company's business operations.
+    """)
+    st.table(esg_df)
+else:
+    st.warning("Please select at least one ticker for comparison.") 
+
    if selected_symbols:  # Check if at least one ticker is selected
     display_time_series_chart(symbol_data, selected_symbols, start_date, end_date)
     display_esg_data_table(selected_symbols)  # Display the ESG Data Table
+       
        
 else:
     st.warning("Please select at least one ticker for comparison.") 
