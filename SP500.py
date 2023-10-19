@@ -263,7 +263,7 @@ def download_link(object_to_download, download_filename, download_link_text):
 
 # Main part of the code
 st.sidebar.title("Navigation")
-choice = st.sidebar.radio("Choose a section:", ["S&P 500 Companies Hourly Returns", "ESG Scores from CSV"])
+choice = st.sidebar.radio("Choose a section:", ["S&P 500 Companies Hourly Returns", "ESG Scores"])
 
 if choice == "S&P 500 Companies Hourly Returns":
     st.title("S&P 500 Companies Hourly Returns")
@@ -345,8 +345,8 @@ if choice == "S&P 500 Companies Hourly Returns":
     else:
         st.error("No data available for the selected symbol.")
 
-elif choice == "ESG Scores from CSV":
-    st.title("ESG Scores from CSV")
+elif choice == "ESG Scores":
+    st.title("ESG Scores")
     
     esg_scores = fetch_esg_scores()
     if esg_scores is None:
