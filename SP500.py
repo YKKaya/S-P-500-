@@ -9,9 +9,8 @@ import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 import plotly.express as px
 import base64
-
 # Function to fetch S&P 500 data
-@st.cache_data
+@st.cache
 def fetch_sp500_data(url):
     try:
         tickers = pd.read_html(url)[0]
@@ -21,7 +20,7 @@ def fetch_sp500_data(url):
         return None
 
 # Function to download stock data
-@st.cache_data
+@st.cache
 def download_stock_data(Stocks):
     try:
         Portfolio = yf.download(Stocks, period='1y', interval='1h')
@@ -31,8 +30,8 @@ def download_stock_data(Stocks):
         return None
         
 # Function to extract esg data        
-@st.cache_data(ttl=60*60*24*30)  # Cache the results for 30 days
-def retrieve_esg_data(ticker):
+@st.cache
+def get_esg_data_with_headers_and_error_handling(ticker):
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     }
@@ -75,22 +74,7 @@ def retrieve_esg_data(ticker):
         result["Controversy level"] = None
 
     return result
-    
-# Function to scrape Yahoo Finance for the ESG data of selected companies
-def scrape_yahoo_esg_data(selected_symbols):
-    data = []
 
-    for ticker in selected_symbols:
-        try:
-            esg_data = retrieve_esg_data(ticker)
-            esg_data["Ticker"] = ticker
-            data.append(esg_data)
-        except Exception as e:
-            print(f"Failed to fetch ESG data for {ticker}. Error: {e}")
-            continue
-
-    df = pd.DataFrame(data)
-    return df
 # Function to map ESG risk score to risk level
 def map_esg_risk_to_level(score):
     if score < 10:
@@ -115,28 +99,11 @@ def process_data(Portfolio):
         return None
         
 # Function to display consolidated ESG data in a table format
-def display_esg_data_table(selected_symbols):
-    esg_data_list = []
-    
-    for symbol in selected_symbols:
-        esg_data = retrieve_esg_data(symbol)
-        if esg_data:
-            esg_data["Ticker"] = symbol
-            esg_data_list.append(esg_data)
-    
+def display_esg_data_table(selected_symbols, esg_data_list):
     # Convert the list of dictionaries to a DataFrame
     esg_df = pd.DataFrame(esg_data_list)
-    
-    # Handle blank values by replacing them with "Data Not Available"
-    esg_df.fillna("Data Not Available", inplace=True)
-    
-    # Display the explanatory text and the ESG Data Table
-    st.write("""
-    ### ESG Data Table:
-    The table below provides the ESG (Environmental, Social, and Governance) scores for the selected tickers. 
-    These scores are retrieved from Yahoo Finance and are based on ratings conducted by Sustainalytics. 
-    The scores provide insights into the sustainability and ethical impact of a company's business operations.
-    """)
+    esg_df.insert(0, 'Ticker', selected_symbols)  # Add a column for tickers at the beginning
+    st.write("### ESG Data Table:")
     st.table(esg_df)
         
 # Function to display ESG risk levels
@@ -303,25 +270,42 @@ if portfolio is not None:
 
     # Ticker selection
     default_ticker = ['AAPL']
-    all_symbols_option = "All"
-    options = [all_symbols_option] + list(filtered_portfolio['Symbol'].unique())
-    selected_option = st.multiselect("Tickers:", options, default=default_ticker)
-
-    # Check if "All" is selected
-    if all_symbols_option in selected_option:
-        selected_symbols = filtered_portfolio['Symbol'].unique().tolist()
-    else:
-        selected_symbols = selected_option
-        
+    selected_symbols = st.multiselect("Tickers:", filtered_portfolio['Symbol'].unique(), default=default_ticker)
+    
+                
     # Filter the data for the selected symbols
     symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
 
+   # Display the time series chart for selected tickers
     if selected_symbols:  # Check if at least one ticker is selected
         display_time_series_chart(symbol_data, selected_symbols, start_date, end_date)
-        display_esg_data_table(selected_symbols)  # Display the ESG Data Table
     else:
         st.warning("Please select at least one ticker for comparison.") 
 
+   # ESG Data Retrieval and Display
+    esg_data_list = []
+    esg_scores = []
+    
+    for symbol in selected_symbols:
+        esg_data = get_esg_data_with_headers_and_error_handling(symbol)
+        if esg_data:
+            esg_data_list.append(esg_data)
+            esg_scores.append(esg_data.get("Total ESG risk score", None))
+    
+    # Display consolidated ESG data table
+    if esg_data_list:
+        display_esg_data_table(selected_symbols, esg_data_list)
+    
+    # Display ESG risk levels visualization for all selected tickers
+    if esg_scores:
+        display_risk_levels(selected_symbols, esg_scores)
+            
+        st.markdown("**Data Source:** [Yahoo Finance](https://finance.yahoo.com/)")
+        st.markdown("**Risk Ratings:** Conducted by [Sustainalytics](https://www.sustainalytics.com/)")
+                      
+    else:
+        st.write(f"No ESG data available for {symbol}.")
+      
     # Now display the data table
     if 'Datetime' in symbol_data.columns:
         symbol_data.set_index('Datetime', inplace=True)
