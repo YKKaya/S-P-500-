@@ -303,8 +303,16 @@ if portfolio is not None:
 
     # Ticker selection
     default_ticker = ['AAPL']
-    selected_symbols = st.multiselect("Tickers:", filtered_portfolio['Symbol'].unique(), default=default_ticker)
-                    
+    all_symbols_option = "All"
+    options = [all_symbols_option] + list(filtered_portfolio['Symbol'].unique())
+    selected_option = st.multiselect("Tickers:", options, default=default_ticker)
+
+    # Check if "All" is selected
+    if all_symbols_option in selected_option:
+        selected_symbols = filtered_portfolio['Symbol'].unique().tolist()
+    else:
+        selected_symbols = selected_option
+        
     # Filter the data for the selected symbols
     symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
 
