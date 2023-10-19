@@ -14,11 +14,12 @@ import base64
 # Function to fetch S&P 500 esg data
 @st.cache
 def fetch_esg_scores():
-    file_path = "https://raw.githubusercontent.com/YKKaya/S-P-500-/test/SP%20500%20ESG%20Risk%20Ratings.csv"
+    url = "https://raw.githubusercontent.com/YKKaya/S-P-500-/test/SP%20500%20ESG%20Risk%20Ratings.csv"
     try:
-        data = pd.read_csv(file_path)
+        data = pd.read_csv(url)
         return data
     except Exception as e:
+        st.error(f"An error occurred: {e}")
         return None
 
 
