@@ -11,7 +11,7 @@ import plotly.express as px
 import base64
 
 # Function to fetch S&P 500 data
-@st.cache
+@st.cache_data
 def fetch_sp500_data(url):
     try:
         tickers = pd.read_html(url)[0]
@@ -21,7 +21,7 @@ def fetch_sp500_data(url):
         return None
 
 # Function to download stock data
-@st.cache
+@st.cache_data
 def download_stock_data(Stocks):
     try:
         Portfolio = yf.download(Stocks, period='1y', interval='1h')
@@ -31,7 +31,7 @@ def download_stock_data(Stocks):
         return None
         
 # Function to extract esg data        
-@st.cache(ttl=60*60*24*30)  # Cache the results for 30 days
+@st.cache_data(ttl=60*60*24*30)  # Cache the results for 30 days
 def retrieve_esg_data(ticker):
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
