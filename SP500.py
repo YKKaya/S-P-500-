@@ -14,9 +14,9 @@ import base64
 # Function to fetch S&P 500 esg data
 @st.cache
 def fetch_esg_scores():
-    url = "https://app.noteable.io/f/e00e6b0d-7fad-4984-ac64-f17a8e3cb943/esg_scores.csv"
+    file_path = "SP 500 ESG Risk Ratings.csv"
     try:
-        data = pd.read_csv(url)
+        data = pd.read_csv(file_path)
         return data
     except Exception as e:
         return None
