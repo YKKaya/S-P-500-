@@ -308,51 +308,12 @@ if portfolio is not None:
     # Filter the data for the selected symbols
     symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
 
-   # Display the time series chart for selected tickers
     if selected_symbols:  # Check if at least one ticker is selected
         display_time_series_chart(symbol_data, selected_symbols, start_date, end_date)
+        display_esg_data_table(selected_symbols)  # Display the ESG Data Table
     else:
         st.warning("Please select at least one ticker for comparison.") 
 
-    # Scrape and display the ESG Data Table
-    esg_df = scrape_yahoo_esg_data(selected_symbols)
-    
-    # Handle blank values by replacing them with "Data Not Available"
-    esg_df.fillna("Data Not Available", inplace=True)
-    
-    # Display the explanatory text and the ESG Data Table
-    st.write("""
-    ### ESG Data Table:
-    The table below provides the ESG (Environmental, Social, and Governance) scores for the selected tickers. 
-    These scores are retrieved from Yahoo Finance and are based on ratings conducted by Sustainalytics. 
-    The scores provide insights into the sustainability and ethical impact of a company's business operations.
-    """)
-    st.table(esg_df)
-else:
-    st.warning("Please select at least one ticker for comparison.") 
-
-   if selected_symbols:  # Check if at least one ticker is selected
-    display_time_series_chart(symbol_data, selected_symbols, start_date, end_date)
-    display_esg_data_table(selected_symbols)  # Display the ESG Data Table
-       
-       
-else:
-    st.warning("Please select at least one ticker for comparison.") 
-    
-    # Display consolidated ESG data table
-    if esg_data_list:
-        display_esg_data_table(selected_symbols, esg_data_list)
-    
-    # Display ESG risk levels visualization for all selected tickers
-    if esg_scores:
-        display_risk_levels(selected_symbols, esg_scores)
-            
-        st.markdown("**Data Source:** [Yahoo Finance](https://finance.yahoo.com/)")
-        st.markdown("**Risk Ratings:** Conducted by [Sustainalytics](https://www.sustainalytics.com/)")
-                      
-    else:
-        st.write(f"No ESG data available for {symbol}.")
-      
     # Now display the data table
     if 'Datetime' in symbol_data.columns:
         symbol_data.set_index('Datetime', inplace=True)
