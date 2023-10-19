@@ -19,8 +19,8 @@ def fetch_esg_scores():
         data = pd.read_csv(url)
         return data
     except Exception as e:
-        st.error(f"Error fetching ESG scores: {e}")
-        return None
+        raise Exception(f"Error fetching ESG scores: {e}")
+
 
 # Function to fetch S&P 500 data    
 @st.cache
