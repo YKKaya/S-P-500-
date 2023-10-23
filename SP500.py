@@ -287,7 +287,7 @@ if choice == "S&P 500 Companies Hourly Returns":
             
         # Ticker selection
         default_ticker = ['AAPL']
-        selected_symbols = st.multiselect("Tickers:", filtered_portfolio['Symbol'].unique(), default=default_ticker)        
+              
   
         # Display the time series chart for selected tickers
         if selected_symbols:  # Check if at least one ticker is selected
