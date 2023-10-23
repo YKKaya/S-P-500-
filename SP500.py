@@ -292,7 +292,7 @@ if choice == "S&P 500 Companies Hourly Returns":
     if portfolio is not None:
         # Date range selection
         st.write("Select Date Range:")
-        start_date = st.date_input("Start Date", value=datetime.now() - timedelta(days=30), max_value=datetime.now())
+        start_date = st.date_input("Start Date", value=datetime.now() - timedelta(days=1), max_value=datetime.now())
         end_date = st.date_input("End Date", value=datetime.now(), max_value=datetime.now())
         filtered_portfolio = portfolio[(portfolio['Datetime'].dt.date >= start_date) & (portfolio['Datetime'].dt.date <= end_date)]
     
