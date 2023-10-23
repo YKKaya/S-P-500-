@@ -22,6 +22,7 @@ def fetch_esg_scores():
         st.error(f"An error occurred: {e}")
         return None
 
+# Streamlit app user input options
 def main():
     st.title("Download Stock Data")
 
@@ -66,6 +67,7 @@ def download_stock_data(ticker, period='1y', interval='1h'):
     except Exception as e:
         st.error(f"Error downloading stock data for {ticker}: {e}")
         return None
+
         
 # Function to extract esg data        
 @st.cache
@@ -289,7 +291,7 @@ def download_link(object_to_download, download_filename, download_link_text):
 st.sidebar.title("Navigation")
 choice = st.sidebar.radio("Choose a section:", ["S&P 500 Companies Hourly Returns", "ESG Scores"])
 default_tickers = ['AAPL']  # Default selection is 'AAPL'
-selected_symbols = st.multiselect("Select stock tickers:", filtered_portfolio['Symbol'].unique(), default=default_tickers)
+
 
 
 if choice == "S&P 500 Companies Hourly Returns":
