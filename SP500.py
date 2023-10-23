@@ -21,13 +21,18 @@ def fetch_sp500_data(url):
 
 # Function to download stock data
 @st.cache
-def download_stock_data(Stocks):
-    try:
-        Portfolio = yf.download(Stocks, period='1y', interval='1h')
-        return Portfolio
-    except Exception as e:
-        st.error(f"Error downloading stock data: {e}")
-        return None
+
+def download_stock_data(ticker="AAPL", period="1d", interval="1m"):
+    """
+    Downloads stock data based on the provided ticker, period, and interval.
+
+    :param ticker: Stock ticker. Default is "AAPL" for Apple.
+    :param period: Data period. Default is "1d".
+    :param interval: Data interval. Default is "1m".
+    :return: Stock data in a DataFrame.
+    """
+    stock_data = yf.download(ticker, period=period, interval=interval)
+    return stock_data
         
 # Function to extract esg data        
 @st.cache
@@ -327,3 +332,15 @@ if portfolio is not None:
         st.error("Datetime column not found in the data.")
 else:
     st.error("No data available for the selected symbol.")
+
+if __name__ == "__main__":
+    ticker = input("Enter the stock ticker (default: AAPL): ") or "AAPL"
+    period = input("Enter the data period (default: 1d): ") or "1d"
+    interval = input("Enter the data interval (default: 1m): ") or "1m"
+
+    raw_data = download_stock_data(ticker, period, interval)
+    processed_data = process_data(raw_data)
+    final_data = merge_additional_info(processed_data)
+
+    # Display or use the final_data as needed
+    print(final_data)
