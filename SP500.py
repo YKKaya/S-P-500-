@@ -295,11 +295,8 @@ selected_symbols = st.multiselect("Select stock tickers:", filtered_portfolio['S
 
 if choice == "S&P 500 Companies Hourly Returns":
     st.title("S&P 500 Companies Hourly Returns")
-    st.write("""
-    An interactive analysis of S&P 500 companies, allowing users to view and download historical stock data, returns, 
-    additional company information. The dataset provides 1 year of historical data, recorded at hourly intervals. 
-    """)
- 
+    st.write("""An interactive analysis of S&P 500 companies, allowing users to view and download historical stock data, returns, 
+    additional company information. The dataset provides 1 year of historical data, recorded at hourly intervals. """)
     
     if portfolio is not None:
         # Date range selection
