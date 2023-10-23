@@ -28,7 +28,7 @@ def main():
     
     # Default selection is 'AAPL'
     default_ticker = ['AAPL']
-    selected_symbols = st.multiselect("Select stock tickers:", default_ticker)  # Fix this line
+    selected_symbols = st.multiselect("Select stock tickers:", default=default_ticker)
     
     # Dropdown menu for the user to select the interval (replace period with interval)
     interval_options = ['1m', '2m', '5m', '15m', '30m', '60m', '90m', '1h', '1d', '5d', '1wk', '1mo', '3mo']
@@ -122,15 +122,6 @@ def map_esg_risk_to_level(score):
     else:
         return "Severe"
         
-# Function to process data
-def process_data(Portfolio):
-    try:
-        portfolio = Portfolio.stack().reset_index().rename(index=str, columns={"level_1": "Symbol", "level_0": "Datetime"})
-        portfolio['Return'] = (portfolio['Close'] - portfolio['Open']) / portfolio['Open']
-        return portfolio
-    except Exception as e:
-        st.error(f"Error processing data: {e}")
-        return None
         
 # Function to display consolidated ESG data in a table format
 def display_esg_data_table(selected_symbols, esg_data_list):
@@ -282,18 +273,6 @@ if choice == "S&P 500 Companies Hourly Returns":
     st.title("S&P 500 Companies Hourly Returns")
     st.write("""An interactive analysis of S&P 500 companies, allowing users to view and download historical stock data, returns, 
     additional company information. The dataset provides 1 year of historical data, recorded at hourly intervals. """)
-    
-    if portfolio is not None:
-            
-        # Ticker selection
-        default_ticker = ['AAPL']
-              
-  
-        # Display the time series chart for selected tickers
-        if selected_symbols:  # Check if at least one ticker is selected
-            display_time_series_chart(symbol_data, selected_symbols, start_date, end_date)
-        else:
-            st.warning("Please select at least one ticker for comparison.") 
     
         # ESG Data Retrieval and Display
         esg_data_list = []
