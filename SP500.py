@@ -294,7 +294,6 @@ if choice == "S&P 500 Companies Hourly Returns":
     additional company information. The dataset provides 1 year of historical data, recorded at hourly intervals. 
     """)
     
-    Stocks = tickers.Symbol.to_list()
     Portfolio = download_stock_data(Stocks)
     portfolio = process_data(Portfolio)
     portfolio = merge_additional_info(portfolio, tickers)
