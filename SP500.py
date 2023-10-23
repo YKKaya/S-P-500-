@@ -22,27 +22,49 @@ def fetch_esg_scores():
         st.error(f"An error occurred: {e}")
         return None
 
-
-# Function to fetch S&P 500 data    
-@st.cache
-def fetch_sp500_data(url):
-    try:
-        tickers = pd.read_html(url)[0]
-        return tickers
-    except Exception as e:
-        st.error(f"Error fetching S&P 500 data: {e}")
-        return None
-
 # Function to download stock data
 @st.cache
-def download_stock_data(Stocks):
+def download_stock_data(Stocks, period='1y', interval='1h'):
+    """
+    Download historical stock data for a given ticker symbol or list of symbols.
+    
+    Parameters:
+        Stocks (str or list): The ticker symbol or list of ticker symbols for the stocks.
+        period (str): The time period over which to fetch historical data. Defaults to '1y'.
+        interval (str): The interval between data points in the returned historical data. Defaults to '1h'.
+    
+    Returns:
+        DataFrame: A pandas DataFrame containing the historical stock data or None if there's an error.
+    """
     try:
-        Portfolio = yf.download(Stocks, period='1y', interval='1h')
+        Portfolio = yf.download(Stocks, period=period, interval=interval)
         return Portfolio
     except Exception as e:
         st.error(f"Error downloading stock data: {e}")
         return None
-        
+
+
+# Streamlit app user input options
+def main():
+    st.title("Download Stock Data")
+
+    # Allow user to input the ticker
+    ticker = st.text_input("Enter the stock ticker (e.g., 'AAPL'):").upper()
+
+    # Dropdown menu for the user to select the period
+    period_options = ['1d', '5d', '1mo', '3mo', '6mo', '1y', '2y', '5y', '10y', 'ytd', 'max']
+    period = st.selectbox("Select time period:", period_options, index=5)  # default to '1y'
+
+    # Dropdown menu for the user to select the interval
+    interval_options = ['1m', '2m', '5m', '15m', '30m', '60m', '90m', '1h', '1d', '5d', '1wk', '1mo', '3mo']
+    interval = st.selectbox("Select time interval:", interval_options, index=7)  # default to '1h'
+
+    if st.button("Download Data"):
+        data = download_stock_data(ticker, period, interval)
+        if data is not None:
+            st.write(data)
+
+
 # Function to extract esg data        
 @st.cache
 def get_esg_data_with_headers_and_error_handling(ticker):
@@ -367,6 +389,9 @@ elif choice == "ESG Scores":
         b64 = base64.b64encode(towrite.read()).decode()
         tmp_download_link = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}" download="esg_scores.xlsx">Download excel file</a>'
         st.markdown(tmp_download_link, unsafe_allow_html=True)
+
+if __name__ == "__main__":
+    main()
 
 
 
