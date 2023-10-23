@@ -294,8 +294,6 @@ if choice == "S&P 500 Companies Hourly Returns":
     additional company information. The dataset provides 1 year of historical data, recorded at hourly intervals. 
     """)
     
-    url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
-    tickers = fetch_sp500_data(url)
     Stocks = tickers.Symbol.to_list()
     Portfolio = download_stock_data(Stocks)
     portfolio = process_data(Portfolio)
