@@ -30,19 +30,13 @@ def main():
     default_ticker = ['AAPL']
     selected_symbols = st.multiselect("Select stock tickers:", filtered_portfolio['Symbol'].unique(), default=default_ticker)
     
-    # Date range selection
-    st.write("Select Date Range:")
-    start_date = st.date_input("Start Date", value=datetime.now() - timedelta(days=30), max_value=datetime.now())
-    end_date = st.date_input("End Date", value=datetime.now(), max_value=datetime.now())
-    
-    # Dropdown menu for the user to select the interval
+    # Dropdown menu for the user to select the interval (replace period with interval)
     interval_options = ['1m', '2m', '5m', '15m', '30m', '60m', '90m', '1h', '1d', '5d', '1wk', '1mo', '3mo']
     interval = st.selectbox("Select time interval:", interval_options, index=7)  # default to '1h'
     
     if st.button("Download Data"):
         for ticker in selected_symbols:
-            # You can pass start_date, end_date, and interval to the download_stock_data function
-            data = download_stock_data(ticker, start_date, end_date, interval)
+            data = download_stock_data(ticker, interval)
             if data is not None:
                 st.write(f"Data for {ticker}:")
                 st.write(data)
@@ -290,12 +284,7 @@ if choice == "S&P 500 Companies Hourly Returns":
     additional company information. The dataset provides 1 year of historical data, recorded at hourly intervals. """)
     
     if portfolio is not None:
-        # Date range selection
-        st.write("Select Date Range:")
-        start_date = st.date_input("Start Date", value=datetime.now() - timedelta(days=1), max_value=datetime.now())
-        end_date = st.date_input("End Date", value=datetime.now(), max_value=datetime.now())
-        filtered_portfolio = portfolio[(portfolio['Datetime'].dt.date >= start_date) & (portfolio['Datetime'].dt.date <= end_date)]
-    
+            
         # Ticker selection
         default_ticker = ['AAPL']
         selected_symbols = st.multiselect("Tickers:", filtered_portfolio['Symbol'].unique(), default=default_ticker)
