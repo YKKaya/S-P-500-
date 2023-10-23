@@ -9,59 +9,25 @@ import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 import plotly.express as px
 import base64
-import io
-
-# Function to fetch S&P 500 esg data
+# Function to fetch S&P 500 data
 @st.cache
-def fetch_esg_scores():
-    url = "https://raw.githubusercontent.com/YKKaya/S-P-500-/test/SP%20500%20ESG%20Risk%20Ratings.csv"
+def fetch_sp500_data(url):
     try:
-        data = pd.read_csv(url)
-        return data
+        tickers = pd.read_html(url)[0]
+        return tickers
     except Exception as e:
-        st.error(f"An error occurred: {e}")
+        st.error(f"Error fetching S&P 500 data: {e}")
         return None
 
-# Streamlit app user input options
-def main():
-    st.title("Download Stock Data")
-    
-    # Default selection is 'AAPL'
-    default_ticker = ['AAPL']
-    selected_symbols = st.multiselect("Select stock tickers:", default=default_ticker)
-    
-    # Dropdown menu for the user to select the interval (replace period with interval)
-    interval_options = ['1m', '2m', '5m', '15m', '30m', '60m', '90m', '1h', '1d', '5d', '1wk', '1mo', '3mo']
-    interval = st.selectbox("Select time interval:", interval_options, index=7)  # default to '1h'
-    
-    if st.button("Download Data"):
-        for ticker in selected_symbols:
-            data = download_stock_data(ticker, interval)
-            if data is not None:
-                st.write(f"Data for {ticker}:")
-                st.write(data)
-                
 # Function to download stock data
 @st.cache
-def download_stock_data(ticker, period='1y', interval='1h'):
-    """
-    Download historical stock data for a given ticker symbol.
-    
-    Parameters:
-        ticker (str): The ticker symbol for the stock.
-        period (str): The time period over which to fetch historical data. Defaults to '1y'.
-        interval (str): The interval between data points in the returned historical data. Defaults to '1h'.
-    
-    Returns:
-        DataFrame: A pandas DataFrame containing the historical stock data or None if there's an error.
-    """
+def download_stock_data(Stocks):
     try:
-        data = yf.download(ticker, period=period, interval=interval)
-        return data
+        Portfolio = yf.download(Stocks, period='1y', interval='1h')
+        return Portfolio
     except Exception as e:
-        st.error(f"Error downloading stock data for {ticker}: {e}")
+        st.error(f"Error downloading stock data: {e}")
         return None
-
         
 # Function to extract esg data        
 @st.cache
@@ -122,6 +88,15 @@ def map_esg_risk_to_level(score):
     else:
         return "Severe"
         
+# Function to process data
+def process_data(Portfolio):
+    try:
+        portfolio = Portfolio.stack().reset_index().rename(index=str, columns={"level_1": "Symbol", "level_0": "Datetime"})
+        portfolio['Return'] = (portfolio['Close'] - portfolio['Open']) / portfolio['Open']
+        return portfolio
+    except Exception as e:
+        st.error(f"Error processing data: {e}")
+        return None
         
 # Function to display consolidated ESG data in a table format
 def display_esg_data_table(selected_symbols, esg_data_list):
@@ -176,6 +151,16 @@ def display_risk_levels(tickers, esg_scores):
     
     st.plotly_chart(fig)
 
+
+# Function to merge additional info
+def merge_additional_info(portfolio, tickers):
+    try:
+        company_info = tickers[['Symbol', 'Security', 'GICS Sector', 'GICS Sub-Industry', 'Headquarters Location', 'Date added', 'Founded']]
+        company_info.columns = ['Symbol', 'Company_Name', 'Industry', 'Sub_Industry', 'Headquarters_Location', 'Date_Added', 'Founded']
+        portfolio = pd.merge(portfolio, company_info, on='Symbol', how='left')
+        return portfolio
+    except Exception as e:
+        return None
         
 # Function to display the time series chart for selected tickers using Plotly
 def display_time_series_chart(symbol_data, selected_symbols, start_date, end_date):
@@ -263,20 +248,41 @@ def download_link(object_to_download, download_filename, download_link_text):
     return f'<a href="data:application/octet-stream;base64,{b64}" download="{download_filename}">{download_link_text}</a>'
 
 # Main part of the code
-st.sidebar.title("Navigation")
-choice = st.sidebar.radio("Choose a section:", ["S&P 500 Companies Hourly Returns", "ESG Scores"])
-default_tickers = ['AAPL']  # Default selection is 'AAPL'
+st.title("S&P 500 Companies Hourly Returns")
+st.write("""
+An interactive analysis of S&P 500 companies, allowing users to view and download historical stock data, returns, 
+additional company information. The dataset provides 1 year of historical data, recorded at hourly intervals. 
+""")
+        
+url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
+tickers = fetch_sp500_data(url)
+Stocks = tickers.Symbol.to_list()
+Portfolio = download_stock_data(Stocks)
+portfolio = process_data(Portfolio)
+portfolio = merge_additional_info(portfolio, tickers)
 
-if choice == "S&P 500 Companies Hourly Returns":
-    st.title("S&P 500 Companies Hourly Returns")
-    st.write("""An interactive analysis of S&P 500 companies, allowing users to view and download historical stock data, returns, 
-    additional company information. The dataset provides 1 year of historical data, recorded at hourly intervals. """)
-    
+if portfolio is not None:
+    # Date range selection
+    st.write("Select Date Range:")
+    start_date = st.date_input("Start Date", value=datetime.now() - timedelta(days=30), max_value=datetime.now())
+    end_date = st.date_input("End Date", value=datetime.now(), max_value=datetime.now())
+    filtered_portfolio = portfolio[(portfolio['Datetime'].dt.date >= start_date) & (portfolio['Datetime'].dt.date <= end_date)]
+
     # Ticker selection
     default_ticker = ['AAPL']
-    selected_symbols = st.multiselect("Select stock tickers:", filtered_portfolio['Symbol'].unique(), default=default_ticker)
+    selected_symbols = st.multiselect("Tickers:", filtered_portfolio['Symbol'].unique(), default=default_ticker)
     
-    # ESG Data Retrieval and Display
+                
+    # Filter the data for the selected symbols
+    symbol_data = filtered_portfolio[filtered_portfolio['Symbol'].isin(selected_symbols)]
+
+   # Display the time series chart for selected tickers
+    if selected_symbols:  # Check if at least one ticker is selected
+        display_time_series_chart(symbol_data, selected_symbols, start_date, end_date)
+    else:
+        st.warning("Please select at least one ticker for comparison.") 
+
+   # ESG Data Retrieval and Display
     esg_data_list = []
     esg_scores = []
     
@@ -321,10 +327,3 @@ if choice == "S&P 500 Companies Hourly Returns":
         st.error("Datetime column not found in the data.")
 else:
     st.error("No data available for the selected symbol.")
-
-if __name__ == "__main__":
-    main()
-
-
-
-
