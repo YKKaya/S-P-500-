@@ -267,58 +267,56 @@ st.sidebar.title("Navigation")
 choice = st.sidebar.radio("Choose a section:", ["S&P 500 Companies Hourly Returns", "ESG Scores"])
 default_tickers = ['AAPL']  # Default selection is 'AAPL'
 
-
-
 if choice == "S&P 500 Companies Hourly Returns":
     st.title("S&P 500 Companies Hourly Returns")
     st.write("""An interactive analysis of S&P 500 companies, allowing users to view and download historical stock data, returns, 
     additional company information. The dataset provides 1 year of historical data, recorded at hourly intervals. """)
     
-        # ESG Data Retrieval and Display
-        esg_data_list = []
-        esg_scores = []
-        
-        for symbol in selected_symbols:
-            esg_data = get_esg_data_with_headers_and_error_handling(symbol)
-            if esg_data:
-                esg_data_list.append(esg_data)
-                esg_scores.append(esg_data.get("Total ESG risk score", None))
-        
-        # Display consolidated ESG data table
-        if esg_data_list:
-            display_esg_data_table(selected_symbols, esg_data_list)
-        
-        # Display ESG risk levels visualization for all selected tickers
-        if esg_scores:
-            display_risk_levels(selected_symbols, esg_scores)
-                
-            st.markdown("**Data Source:** [Yahoo Finance](https://finance.yahoo.com/)")
-            st.markdown("**Risk Ratings:** Conducted by [Sustainalytics](https://www.sustainalytics.com/)")
-                          
-        else:
-            st.write(f"No ESG data available for {symbol}.")
-          
-        # Now display the data table
-        if 'Datetime' in symbol_data.columns:
-            symbol_data.set_index('Datetime', inplace=True)
-            st.write("### Data Table:")
-            st.dataframe(symbol_data)
+    # ESG Data Retrieval and Display
+    esg_data_list = []
+    esg_scores = []
     
-            if st.button("Download data as CSV"):
-                tmp_download_link = download_link(symbol_data, 'your_data.csv', 'Click here to download your data as CSV!')
-                st.markdown(tmp_download_link, unsafe_allow_html=True)
+    for symbol in selected_symbols:
+        esg_data = get_esg_data_with_headers_and_error_handling(symbol)
+        if esg_data:
+            esg_data_list.append(esg_data)
+            esg_scores.append(esg_data.get("Total ESG risk score", None))
     
-            if st.button("Download data as Excel"):
-                towrite = io.BytesIO()
-                downloaded_file = symbol_data.to_excel(towrite, index=False, sheet_name='Sheet1')
-                towrite.seek(0)
-                b64 = base64.b64encode(towrite.read()).decode()
-                tmp_download_link = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}" download="your_data.xlsx">Download excel file</a>'
-                st.markdown(tmp_download_link, unsafe_allow_html=True)
-        else:
-            st.error("Datetime column not found in the data.")
+    # Display consolidated ESG data table
+    if esg_data_list:
+        display_esg_data_table(selected_symbols, esg_data_list)
+    
+    # Display ESG risk levels visualization for all selected tickers
+    if esg_scores:
+        display_risk_levels(selected_symbols, esg_scores)
+            
+        st.markdown("**Data Source:** [Yahoo Finance](https://finance.yahoo.com/)")
+        st.markdown("**Risk Ratings:** Conducted by [Sustainalytics](https://www.sustainalytics.com/)")
+                      
     else:
-        st.error("No data available for the selected symbol.")
+        st.write(f"No ESG data available for {symbol}.")
+      
+    # Now display the data table
+    if 'Datetime' in symbol_data.columns:
+        symbol_data.set_index('Datetime', inplace=True)
+        st.write("### Data Table:")
+        st.dataframe(symbol_data)
+
+        if st.button("Download data as CSV"):
+            tmp_download_link = download_link(symbol_data, 'your_data.csv', 'Click here to download your data as CSV!')
+            st.markdown(tmp_download_link, unsafe_allow_html=True)
+
+        if st.button("Download data as Excel"):
+            towrite = io.BytesIO()
+            downloaded_file = symbol_data.to_excel(towrite, index=False, sheet_name='Sheet1')
+            towrite.seek(0)
+            b64 = base64.b64encode(towrite.read()).decode()
+            tmp_download_link = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}" download="your_data.xlsx">Download excel file</a>'
+            st.markdown(tmp_download_link, unsafe_allow_html=True)
+    else:
+        st.error("Datetime column not found in the data.")
+else:
+    st.error("No data available for the selected symbol.")
 
 if __name__ == "__main__":
     main()
