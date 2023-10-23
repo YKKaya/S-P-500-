@@ -272,6 +272,10 @@ if choice == "S&P 500 Companies Hourly Returns":
     st.write("""An interactive analysis of S&P 500 companies, allowing users to view and download historical stock data, returns, 
     additional company information. The dataset provides 1 year of historical data, recorded at hourly intervals. """)
     
+    # Ticker selection
+    default_ticker = ['AAPL']
+    selected_symbols = st.multiselect("Select stock tickers:", filtered_portfolio['Symbol'].unique(), default=default_ticker)
+    
     # ESG Data Retrieval and Display
     esg_data_list = []
     esg_scores = []
