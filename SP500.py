@@ -23,6 +23,7 @@ def fetch_esg_scores():
         return None
 
 # Streamlit app user input options
+# Streamlit app user input options
 def main():
     st.title("Download Stock Data")
 
@@ -40,13 +41,20 @@ def main():
     interval_options = ['1m', '2m', '5m', '15m', '30m', '60m', '90m', '1h', '1d', '5d', '1wk', '1mo', '3mo']
     interval = st.selectbox("Select time interval:", interval_options, index=7)  # default to '1h'
 
-    if st.button("Download Data"):
-        for ticker in selected_symbols:
-            data = download_stock_data(ticker, period, interval)
-            if data is not None:
-                st.write(f"Data for {ticker}:")
-                st.write(data)
+    if choice == "S&P 500 Companies Hourly Returns":
+        st.title("S&P 500 Companies Hourly Returns")
+        st.write("""
+        An interactive analysis of S&P 500 companies, allowing users to view and download historical stock data, returns, 
+        additional company information. The dataset provides 1 year of historical data, recorded at hourly intervals. 
+        """)
 
+        if st.button("Download Data"):
+            for ticker in selected_symbols:
+                data = download_stock_data(ticker, period, interval)
+                if data is not None:
+                    st.write(f"Data for {ticker}:")
+                    st.write(data)
+    
 # Function to download stock data
 @st.cache
 def download_stock_data(ticker, period='1y', interval='1h'):
@@ -355,30 +363,8 @@ if choice == "S&P 500 Companies Hourly Returns":
     else:
         st.error("No data available for the selected symbol.")
 
-elif choice == "ESG Scores":
-    st.title("ESG Scores")
-    
-    esg_scores = fetch_esg_scores()
-    if esg_scores is None:
-        st.error("Error fetching ESG scores. Please check the URL or try again later.")
-    else:
-        st.write(esg_scores)
-    
-    # Download ESG scores as CSV
-    if st.button("Download ESG scores as CSV"):
-        tmp_download_link = download_link(esg_scores, 'esg_scores.csv', 'Click here to download ESG scores as CSV!')
-        st.markdown(tmp_download_link, unsafe_allow_html=True)
-    
-    # Download ESG scores as Excel
-    if st.button("Download ESG scores as Excel"):
-        towrite = io.BytesIO()
-        downloaded_file = esg_scores.to_excel(towrite, index=False, sheet_name='Sheet1')
-        towrite.seek(0)
-        b64 = base64.b64encode(towrite.read()).decode()
-        tmp_download_link = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}" download="esg_scores.xlsx">Download excel file</a>'
-        st.markdown(tmp_download_link, unsafe_allow_html=True)
-
 if __name__ == "__main__":
+    choice = st.sidebar.radio("Choose a section:", ["S&P 500 Companies Hourly Returns", "ESG Scores"])
     main()
 
 
