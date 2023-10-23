@@ -23,7 +23,6 @@ def fetch_esg_scores():
         return None
 
 
-# Streamlit app user input options
 def main():
     st.title("Download Stock Data")
 
