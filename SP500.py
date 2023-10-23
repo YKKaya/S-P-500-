@@ -23,33 +23,13 @@ def fetch_esg_scores():
         return None
 
 # Function to download stock data
-@st.cache
-def download_stock_data(Stocks, period='1y', interval='1h'):
-    """
-    Download historical stock data for a given ticker symbol or list of symbols.
-    
-    Parameters:
-        Stocks (str or list): The ticker symbol or list of ticker symbols for the stocks.
-        period (str): The time period over which to fetch historical data. Defaults to '1y'.
-        interval (str): The interval between data points in the returned historical data. Defaults to '1h'.
-    
-    Returns:
-        DataFrame: A pandas DataFrame containing the historical stock data or None if there's an error.
-    """
-    try:
-        Portfolio = yf.download(Stocks, period=period, interval=interval)
-        return Portfolio
-    except Exception as e:
-        st.error(f"Error downloading stock data: {e}")
-        return None
-
-
-# Streamlit app user input options
+@# Streamlit app user input options
 def main():
     st.title("Download Stock Data")
 
-    # Allow user to input the ticker
-    ticker = st.text_input("Enter the stock ticker (e.g., 'AAPL'):").upper()
+    # Allow user to input the stock tickers (default to AAPL)
+    default_tickers = ['AAPL']
+    selected_symbols = st.multiselect("Select stock tickers:", filtered_portfolio['Symbol'].unique(), default=default_tickers)
 
     # Dropdown menu for the user to select the period
     period_options = ['1d', '5d', '1mo', '3mo', '6mo', '1y', '2y', '5y', '10y', 'ytd', 'max']
@@ -60,9 +40,32 @@ def main():
     interval = st.selectbox("Select time interval:", interval_options, index=7)  # default to '1h'
 
     if st.button("Download Data"):
-        data = download_stock_data(ticker, period, interval)
-        if data is not None:
-            st.write(data)
+        for ticker in selected_symbols:
+            data = download_stock_data(ticker, period, interval)
+            if data is not None:
+                st.write(f"Data for {ticker}:")
+                st.write(data)
+
+# Function to download stock data
+@st.cache
+def download_stock_data(ticker, period='1y', interval='1h'):
+    """
+    Download historical stock data for a given ticker symbol.
+    
+    Parameters:
+        ticker (str): The ticker symbol for the stock.
+        period (str): The time period over which to fetch historical data. Defaults to '1y'.
+        interval (str): The interval between data points in the returned historical data. Defaults to '1h'.
+    
+    Returns:
+        DataFrame: A pandas DataFrame containing the historical stock data or None if there's an error.
+    """
+    try:
+        data = yf.download(ticker, period=period, interval=interval)
+        return data
+    except Exception as e:
+        st.error(f"Error downloading stock data for {ticker}: {e}")
+        return None
 
 
 # Function to extract esg data        
