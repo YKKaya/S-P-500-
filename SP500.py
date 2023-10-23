@@ -288,6 +288,9 @@ def download_link(object_to_download, download_filename, download_link_text):
 # Main part of the code
 st.sidebar.title("Navigation")
 choice = st.sidebar.radio("Choose a section:", ["S&P 500 Companies Hourly Returns", "ESG Scores"])
+default_tickers = ['AAPL']  # Default selection is 'AAPL'
+selected_symbols = st.multiselect("Select stock tickers:", filtered_portfolio['Symbol'].unique(), default=default_tickers)
+
 
 if choice == "S&P 500 Companies Hourly Returns":
     st.title("S&P 500 Companies Hourly Returns")
