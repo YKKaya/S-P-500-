@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 import plotly.express as px
 import base64
-
+import io
 
 # Function to fetch S&P 500 esg data
 @st.cache
@@ -28,7 +28,7 @@ def main():
     
     # Default selection is 'AAPL'
     default_ticker = ['AAPL']
-    selected_symbols = st.multiselect("Select stock tickers:", filtered_portfolio['Symbol'].unique(), default=default_ticker)
+    selected_symbols = st.multiselect("Select stock tickers:", default_ticker)  # Fix this line
     
     # Dropdown menu for the user to select the interval (replace period with interval)
     interval_options = ['1m', '2m', '5m', '15m', '30m', '60m', '90m', '1h', '1d', '5d', '1wk', '1mo', '3mo']
