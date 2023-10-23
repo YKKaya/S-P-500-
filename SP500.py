@@ -191,16 +191,6 @@ def display_risk_levels(tickers, esg_scores):
     
     st.plotly_chart(fig)
 
-
-# Function to merge additional info
-def merge_additional_info(portfolio, tickers):
-    try:
-        company_info = tickers[['Symbol', 'Security', 'GICS Sector', 'GICS Sub-Industry', 'Headquarters Location', 'Date added', 'Founded']]
-        company_info.columns = ['Symbol', 'Company_Name', 'Industry', 'Sub_Industry', 'Headquarters_Location', 'Date_Added', 'Founded']
-        portfolio = pd.merge(portfolio, company_info, on='Symbol', how='left')
-        return portfolio
-    except Exception as e:
-        return None
         
 # Function to display the time series chart for selected tickers using Plotly
 def display_time_series_chart(symbol_data, selected_symbols, start_date, end_date):
