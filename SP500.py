@@ -22,7 +22,6 @@ def fetch_esg_scores():
         st.error(f"An error occurred: {e}")
         return None
 
-# Streamlit app user input options
 def main():
     st.title("Download Stock Data")
 
@@ -30,7 +29,7 @@ def main():
     default_tickers = ['AAPL']
     
     # Allow user to input the stock tickers
-    selected_symbols = st.multiselect("Select stock tickers:", filtered_portfolio['Symbol'].unique(), default=default_tickers)
+    selected_symbols = st.multiselect("Select stock tickers:", default_tickers)
 
     # Dropdown menu for the user to select the period
     period_options = ['1d', '5d', '1mo', '3mo', '6mo', '1y', '2y', '5y', '10y', 'ytd', 'max']
@@ -67,7 +66,7 @@ def download_stock_data(ticker, period='1y', interval='1h'):
     except Exception as e:
         st.error(f"Error downloading stock data for {ticker}: {e}")
         return None
-
+        
 # Function to extract esg data        
 @st.cache
 def get_esg_data_with_headers_and_error_handling(ticker):
